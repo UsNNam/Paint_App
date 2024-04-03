@@ -1,0 +1,93 @@
+﻿<Window x:Class="Simple_Paint.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Simple_Paint"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        Background="White"
+        >
+    <Window.Resources>
+        <Style TargetType="RadioButton" x:Key="CustomRadioButtonStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid>
+                            <!-- Custom circle -->
+                            <Ellipse Width="20" Height="20" Fill="Red"/>
+                            <Ellipse x:Name="CheckedMark" Width="24" Height="24" Fill="Transparent" Stroke="Black" Visibility="Collapsed"/>
+
+                            <!-- Content -->
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- Trigger to show checked mark when RadioButton is checked -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckedMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <ToolBar Name="MyToolbar" DockPanel.Dock="Top" Height="50">
+            <RadioButton Name="LineButton" BorderBrush="#FF969696" Content="Line" Height="40" Width="80" GroupName="Shape" Click="LineButton_Click" IsChecked="True"/>
+            <RadioButton Name="EllipseButton" BorderBrush="#FF969696" Content="Ellipse" Height="40" Width="90" GroupName="Shape" Click="EllipseButton_Click"/>
+            <RadioButton Name="RectangleButton" BorderBrush="#FF969696" Content="Rectangle" Height="40" Width="90" GroupName="Shape" Click="RectangleButton_Click"/>
+
+            <Canvas>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorFill" Click="FillColor_Click" IsChecked="True" Tag="{x:Static Brushes.Black}">
+                            <Ellipse Fill="Black" Width="20" Height="20" Canvas.Left="210" Canvas.Top="10"/>
+                        </RadioButton>
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorFill" Click="FillColor_Click"  Tag="{x:Static Brushes.Red}">
+                            <Ellipse Fill="Red" Width="20" Height="20" Canvas.Left="240" Canvas.Top="10"/>
+                        </RadioButton>
+
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorFill"  Click="FillColor_Click"  Tag="{x:Static Brushes.Green}">
+                            <Ellipse Fill="Green" Width="20" Height="20" Canvas.Left="270" Canvas.Top="10"/>
+                        </RadioButton>
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorFill"  Click="FillColor_Click"  Tag="{x:Static Brushes.Blue}">
+                            <Ellipse Fill="Blue" Width="20" Height="20" Canvas.Left="300" Canvas.Top="10"/>
+                        </RadioButton>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="100,0,0,0">
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorBorder" Click="BorderColor_Click" IsChecked="True" Tag="{x:Static Brushes.Black}">
+                            <Ellipse Fill="Black" Width="20" Height="20"/>
+                        </RadioButton>
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorBorder"  Click="BorderColor_Click"  Tag="{x:Static Brushes.Red}">
+                            <Ellipse Fill="Red" Width="20" Height="20"/>
+                        </RadioButton>
+
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorBorder"  Click="BorderColor_Click"  Tag="{x:Static Brushes.Green}">
+                            <Ellipse Fill="Green" Width="20" Height="20"/>
+                        </RadioButton>
+
+                        <RadioButton Style="{StaticResource CustomRadioButtonStyle}" GroupName="ColorBorder"  Click="BorderColor_Click"  Tag="{x:Static Brushes.Blue}">
+                            <Ellipse Fill="Blue" Width="20" Height="20"/>
+                        </RadioButton>
+                    </StackPanel>
+                </StackPanel>
+                
+                
+
+                
+
+
+            </Canvas>
+        </ToolBar>
+        <Canvas x:Name="canvas" Background="Wheat" MouseLeftButtonDown="Canvas_MouseDown" MouseMove="canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseUp">
+            
+        </Canvas>
+    </DockPanel>
+</Window>

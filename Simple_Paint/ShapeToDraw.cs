@@ -146,4 +146,48 @@ namespace Simple_Paint
 
         }
     }
+
+    class TriangleShape : ShapeToDraw
+    {
+        Polygon triangle;
+        Point p1, p2, p3;
+        PointCollection points;
+        public TriangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
+        {
+
+        }
+
+        public override void Draw()
+        {
+            triangle = new Polygon();
+            triangle.Stroke = borderColor;
+            triangle.Fill = fillColor;
+            triangle.StrokeThickness = 2;
+            points = new PointCollection();
+            p1 = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 2, StartPoint.Y);
+            p2 = new Point(StartPoint.X, EndPoint.Y);
+            p3 = new Point(EndPoint.X, EndPoint.Y);
+            points.Add(p1);
+            points.Add(p2);
+            points.Add(p3);
+            triangle.Points = points;
+            canvas.Children.Add(triangle);
+        }
+
+        public override void UpdateEndPoint()
+        {
+            
+            p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
+            p1.Y = StartPoint.Y;
+            p2.X = StartPoint.X;
+            p2.Y = EndPoint.Y;
+            p3.X = EndPoint.X;
+            p3.Y = EndPoint.Y;
+            points[0] = p1;
+            points[1] = p2;
+            points[2] = p3;
+            //triangle.Points = points;
+        }
+
+    }
 }

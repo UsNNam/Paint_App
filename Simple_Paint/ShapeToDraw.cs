@@ -57,7 +57,7 @@ namespace Simple_Paint
                 fillColor = Brushes.Black;
             }
             line.Stroke = fillColor;
-            line.StrokeThickness = 2;
+            line.StrokeThickness = 2.5;
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;

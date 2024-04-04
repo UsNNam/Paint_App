@@ -118,6 +118,29 @@ namespace Simple_Paint
             }
         }
 
+        private void StarButton_Click(object sender, RoutedEventArgs e)
+        {
+            curShape = new StarShape(new Point(0, 0), new Point(0, 0));
+            if (fillColorMain == null)
+            {
+                ShapeToDraw.fillColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.fillColor = fillColorMain;
+
+            }
+
+            if(borderColorMain == null)
+            {
+                ShapeToDraw.borderColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.borderColor = borderColorMain;
+            }
+        }
+
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed && isDraw == false)

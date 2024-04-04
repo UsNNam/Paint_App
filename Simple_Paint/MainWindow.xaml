@@ -38,6 +38,7 @@
             <RadioButton Name="EllipseButton" BorderBrush="#FF969696" Content="Ellipse" Height="40" Width="90" GroupName="Shape" Click="EllipseButton_Click"/>
             <RadioButton Name="RectangleButton" BorderBrush="#FF969696" Content="Rectangle" Height="40" Width="90" GroupName="Shape" Click="RectangleButton_Click"/>
             <RadioButton Name="TriangleButton" BorderBrush="#FF969696" Content="Triangle" Height="40" Width="90" GroupName="Shape" Click="TriangleButton_Click"/>
+            <RadioButton Name="StartButton" BorderBrush="#FF969696" Content="Star" Height="40" Width="90" GroupName="Shape" Click="StarButton_Click"/>
             <Canvas>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal">

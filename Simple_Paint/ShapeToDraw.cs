@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -42,7 +43,7 @@ namespace Simple_Paint
 
     class LineShape : ShapeToDraw
     {
-        Line line;
+        public Line line;
        public LineShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
        {
 
@@ -56,6 +57,7 @@ namespace Simple_Paint
                 fillColor = Brushes.Black;
             }
             line.Stroke = fillColor;
+            line.StrokeThickness = 2;
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
@@ -68,6 +70,12 @@ namespace Simple_Paint
         {
             line.X1 = EndPoint.X;
             line.Y1 = EndPoint.Y;
+        }
+
+        public void UpdateStartPoint()
+        {
+            line.X2 = StartPoint.X;
+            line.Y2 = StartPoint.Y;
         }
 
     }
@@ -190,4 +198,56 @@ namespace Simple_Paint
         }
 
     }
+
+    class StarShape : ShapeToDraw
+    {
+        TriangleShape triangle1, triangle2;
+        LineShape line1, line2, line3;
+        public StarShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
+        {
+            Point newEndPoint1 = new Point(endPoint.X, startPoint.Y + (endPoint.Y - startPoint.Y) * 3/4);
+            triangle1 = new TriangleShape(startPoint, newEndPoint1);
+            Point newStartPoint = new Point(startPoint.X, startPoint.Y + (endPoint.Y - startPoint.Y) * 4/3 );
+            Point newEndPoint = new Point(endPoint.X, startPoint.Y );
+            triangle2 = new TriangleShape(newStartPoint, newEndPoint);
+            line1 = new LineShape(new Point(0, 0), new Point(0, 0));
+            line2 = new LineShape(new Point(0, 0), new Point(0, 0));
+            line3 = new LineShape(new Point(0, 0), new Point(0, 0));
+        }
+
+        public override void Draw()
+        {
+            triangle1.StartPoint = StartPoint;
+            triangle1.Draw();
+            triangle2.Draw();
+            line1.Draw();
+            line2.Draw();
+            line3.Draw();
+        }
+        public override void UpdateEndPoint()
+        {
+            triangle1.EndPoint= new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3/4);
+            triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
+            triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
+            line1.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            line1.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+
+            line2.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            line2.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+
+            line3.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 5 / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            line3.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+
+            line1.UpdateEndPoint();
+            line1.UpdateStartPoint();
+            line2.UpdateEndPoint();
+            line2.UpdateStartPoint();
+            line3.UpdateEndPoint();
+            line3.UpdateStartPoint();
+            triangle1.UpdateEndPoint();
+            triangle2.UpdateEndPoint();
+            
+        }
+    }
+
 }

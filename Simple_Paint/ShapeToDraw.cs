@@ -57,7 +57,7 @@ namespace Simple_Paint
                 fillColor = Brushes.Black;
             }
             line.Stroke = fillColor;
-            line.StrokeThickness = 2.5;
+            line.StrokeThickness = 5;
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
@@ -153,6 +153,27 @@ namespace Simple_Paint
             }
 
         }
+        public void UpdateStartPoint()
+        {
+            if(EndPoint.X < StartPoint.X)
+            {
+                Canvas.SetLeft(rectangle, EndPoint.X);
+            }
+            else
+            {
+                Canvas.SetLeft(rectangle, StartPoint.X);
+            }
+            if(EndPoint.Y < StartPoint.Y)
+            {
+                Canvas.SetTop(rectangle, EndPoint.Y);
+            }
+            else
+            {
+                Canvas.SetTop(rectangle, StartPoint.Y);
+            }
+            
+            
+        }
     }
 
     class TriangleShape : ShapeToDraw
@@ -189,6 +210,21 @@ namespace Simple_Paint
             p1.Y = StartPoint.Y;
             p2.X = StartPoint.X;
             p2.Y = EndPoint.Y;
+            p3.X = EndPoint.X;
+            p3.Y = EndPoint.Y;
+            points[0] = p1;
+            points[1] = p2;
+            points[2] = p3;
+            //triangle.Points = points;
+        }
+
+        public void UpdateEndPointLandscapeOrientation()
+        {
+
+            p1.X = StartPoint.X;
+            p1.Y = StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2;
+            p2.X = EndPoint.X;
+            p2.Y = StartPoint.Y;
             p3.X = EndPoint.X;
             p3.Y = EndPoint.Y;
             points[0] = p1;
@@ -247,6 +283,43 @@ namespace Simple_Paint
             triangle1.UpdateEndPoint();
             triangle2.UpdateEndPoint();
             
+        }
+    }
+
+    class ArrowShape : ShapeToDraw {
+        RectangleShape rectangle;
+        TriangleShape triangle;
+        LineShape line;
+        public ArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
+        {
+            rectangle = new RectangleShape(startPoint, endPoint);
+            triangle = new TriangleShape(startPoint, endPoint);
+        }
+
+        public override void Draw()
+        {
+            
+            rectangle.Draw();
+            triangle.Draw();
+            line = new LineShape(new Point(0, 0), new Point(0, 0));
+            line.Draw();
+        }
+
+        public override void UpdateEndPoint()
+        {
+
+            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            rectangle.UpdateEndPoint();
+            rectangle.UpdateStartPoint();
+            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            triangle.UpdateEndPointLandscapeOrientation();
+
+            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            line.UpdateEndPoint();
+            line.UpdateStartPoint();
         }
     }
 

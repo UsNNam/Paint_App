@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace Simple_Paint
@@ -287,9 +288,9 @@ namespace Simple_Paint
     }
 
     class ArrowShape : ShapeToDraw {
-        RectangleShape rectangle;
-        TriangleShape triangle;
-        LineShape line;
+        public RectangleShape rectangle;
+        public TriangleShape triangle;
+        public LineShape line;
         public ArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
             rectangle = new RectangleShape(startPoint, endPoint);
@@ -320,6 +321,58 @@ namespace Simple_Paint
             line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             line.UpdateEndPoint();
             line.UpdateStartPoint();
+        }
+    }
+
+    class PentagonArrowShape : ArrowShape
+    {
+        public PentagonArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
+        {
+           
+        }
+        public override void UpdateEndPoint()
+        {
+
+            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y);
+            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            rectangle.UpdateEndPoint();
+            rectangle.UpdateStartPoint();
+            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            triangle.UpdateEndPointLandscapeOrientation();
+
+            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y);
+            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            line.UpdateEndPoint();
+            line.UpdateStartPoint();
+        }
+    }
+
+    class CollateShape : ShapeToDraw
+    {
+        TriangleShape triangle1, triangle2;
+        public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
+        {
+
+        }
+
+        public override void Draw()
+        {
+            triangle1 = new TriangleShape(StartPoint, EndPoint);
+            triangle1.Draw();
+            triangle2 = new TriangleShape(new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2), new Point(EndPoint.X, EndPoint.Y));
+            triangle2.Draw();
+        }
+
+        public override void UpdateEndPoint()
+        {
+            triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle1.UpdateEndPoint();
+            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            triangle2.EndPoint = EndPoint;
+            triangle2.UpdateEndPoint();
+
         }
     }
 

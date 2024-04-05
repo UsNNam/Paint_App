@@ -163,6 +163,52 @@ namespace Simple_Paint
                 ShapeToDraw.borderColor = borderColorMain;
             }
         }
+        
+        private void ArrowPentagonButton_Click(object sender, RoutedEventArgs e)
+        {
+            curShape = new PentagonArrowShape(new Point(0, 0), new Point(0, 0));
+            if (fillColorMain == null)
+            {
+                ShapeToDraw.fillColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.fillColor = fillColorMain;
+
+            }
+
+            if(borderColorMain == null)
+            {
+                ShapeToDraw.borderColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.borderColor = borderColorMain;
+            }
+        }
+
+        private void CollateButton_Click(object sender, RoutedEventArgs e)
+        {
+            curShape = new CollateShape(new Point(0, 0), new Point(0, 0));
+            if (fillColorMain == null)
+            {
+                ShapeToDraw.fillColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.fillColor = fillColorMain;
+
+            }
+
+            if(borderColorMain == null)
+            {
+                ShapeToDraw.borderColor = Brushes.Black;
+            }
+            else
+            {
+                ShapeToDraw.borderColor = borderColorMain;
+            }
+        }
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {

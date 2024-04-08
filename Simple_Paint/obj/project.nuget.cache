@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "29uQETXZQKps6pkxXpm4w+stEWyvG81Yw86B2ZgXZWi1HksB6y3z66oi8VzuDbI0223rV0cgZ9NQWCf/IOxC8Q==",
+  "dgSpecHash": "MBnJnE4DK0JG4ChoqgqMWQqA7TepZHSLZu+84+Gek/hvm1KelidWzuI5hPurwMXIEQzjnRrbX+N8fmkRffKS3g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Downloads\\Simple_Paint\\Paint_App\\Simple_Paint\\Simple_Paint.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\DELL\\Documents\\GitHub\\Paint_App\\Simple_Paint\\Simple_Paint.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\DELL\\.nuget\\packages\\wpf-ui\\3.0.3\\wpf-ui.3.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

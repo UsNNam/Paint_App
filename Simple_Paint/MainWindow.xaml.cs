@@ -18,195 +18,107 @@ namespace Simple_Paint
     {
         ShapeToDraw curShape;
         bool isDraw = false;
-        public static SolidColorBrush fillColorMain { get; set; }
+        // Default setting
+        public static SolidColorBrush fillColorMain = null;
+        public static SolidColorBrush borderColorMain = Brushes.Black;
+        public static double thickness = 1;
+        public static Stroke stroke = new SolidStroke(Brushes.Black, 1,null);
+        public static string typeOfStroke = "Solid";
 
-        public static SolidColorBrush borderColorMain { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
+        private void ThicknessComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem != null)
+            {
+                // Assuming the ComboBox items are strings representing thicknesses
+                ComboBoxItem typeItem = (ComboBoxItem)comboBox.SelectedItem;
+                string selectedThickness = typeItem.Content.ToString();
 
+                if (double.TryParse(selectedThickness, out double thicknessValue))
+                {
+                    thickness = double.Parse(selectedThickness);
+                }
+                else
+                {
+                    MessageBox.Show(selectedThickness + " is not a valid thickness value.");
+                }
+            }
+        }
+        private void BorderStyleComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem != null)
+            {
+                ComboBoxItem typeItem = (ComboBoxItem)comboBox.SelectedItem;
+                string type = typeItem.Content.ToString();
+
+                typeOfStroke = type;
+            }
+        }
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new LineShape(new Point(0, 0), new Point(0, 0));
-            if(fillColorMain == null)
+            if (curShape is not LineShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
+                curShape = new LineShape(new Point(0, 0), new Point(0, 0));
             }
-            else {                 
-                ShapeToDraw.fillColor = fillColorMain;
-                       
-            }
-           
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
-            }
-        
         }
         private void EllipseButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new EllipseShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not EllipseShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new EllipseShape(new Point(0, 0), new Point(0, 0));
             }
         }
         private void RectangleButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not RectangleShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
             }
         }
 
         private void TriangleButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new TriangleShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not TriangleShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new TriangleShape(new Point(0, 0), new Point(0, 0));
             }
         }
 
         private void StarButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new StarShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not StarShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new StarShape(new Point(0, 0), new Point(0, 0));
             }
         }
 
         private void ArrowButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new ArrowShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not ArrowShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new ArrowShape(new Point(0, 0), new Point(0, 0));
             }
         }
         
         private void ArrowPentagonButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new PentagonArrowShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not PentagonArrowShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new PentagonArrowShape(new Point(0, 0), new Point(0, 0));
             }
         }
 
         private void CollateButton_Click(object sender, RoutedEventArgs e)
         {
-            curShape = new CollateShape(new Point(0, 0), new Point(0, 0));
-            if (fillColorMain == null)
+            if (curShape is not CollateShape)
             {
-                ShapeToDraw.fillColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.fillColor = fillColorMain;
-
-            }
-
-            if(borderColorMain == null)
-            {
-                ShapeToDraw.borderColor = Brushes.Black;
-            }
-            else
-            {
-                ShapeToDraw.borderColor = borderColorMain;
+                curShape = new CollateShape(new Point(0, 0), new Point(0, 0));
             }
         }
 
@@ -214,7 +126,26 @@ namespace Simple_Paint
         {
             if(e.LeftButton == MouseButtonState.Pressed && isDraw == false)
             {
-                
+                Stroke stroke = new SolidStroke(borderColorMain, thickness, fillColorMain);
+                if (typeOfStroke == "Solid")
+                {
+                    stroke = new SolidStroke(borderColorMain, thickness, fillColorMain);
+                }
+                else if (typeOfStroke == "Dash")
+                {
+                    stroke = new DashStroke(borderColorMain, thickness, fillColorMain);
+                }
+                else if (typeOfStroke == "Dot")
+                {
+                    stroke = new DotStroke(borderColorMain, thickness, fillColorMain);
+                }
+                else if (typeOfStroke == "DashDotDot")
+                {
+                    stroke = new DashDotDotStroke(borderColorMain, thickness, fillColorMain);
+                }
+
+                curShape.stroke = stroke;
+
                 Point point = e.GetPosition(canvas);
                 if(point != null) {
                     curShape.StartPoint = point;
@@ -283,7 +214,6 @@ namespace Simple_Paint
             RadioButton radioButton = (RadioButton)sender;
             if (radioButton.IsChecked == true)
             {
-                ShapeToDraw.fillColor = (SolidColorBrush)radioButton.Tag;
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
             }
             if (curShape != null)
@@ -297,7 +227,6 @@ namespace Simple_Paint
             RadioButton radioButton = (RadioButton)sender;
             if (radioButton.IsChecked == true)
             {
-                ShapeToDraw.borderColor = (SolidColorBrush)radioButton.Tag;
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
             }
             if (curShape != null)

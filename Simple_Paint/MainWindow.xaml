@@ -83,6 +83,7 @@
                 </ComboBox>
             </StackPanel>
             <Canvas>
+
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
 
                     <!-- Color Fill Selection -->
@@ -129,7 +130,11 @@
             </Canvas>
         </ToolBar>
         <Canvas x:Name="canvas" Background="Wheat" MouseLeftButtonDown="Canvas_MouseDown" MouseMove="canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseUp">
-            
+            <Canvas.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy to Clipboard" Click="CopyToClipboard_Click" />
+                </ContextMenu>
+            </Canvas.ContextMenu>
         </Canvas>
     </DockPanel>
 </Window>

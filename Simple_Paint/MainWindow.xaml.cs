@@ -1,14 +1,10 @@
 ﻿using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Simple_Paint
 {
@@ -29,13 +25,50 @@ namespace Simple_Paint
         public static Point topLeft = new Point(0, 0);
         public static Point bottomRight = new Point(0, 0);
 
+        public static List<ShapeToDraw> history = new List<ShapeToDraw>();
+        public static string shapeType = "Line";
+
+        public static bool isSelect = false;
+
         public MainWindow()
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
+        // This method is called when the ToggleButton is checked
+        private void CopyToClipboardToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+            if (toggleButton != null)
+            {
+                // Perform actions when the button is checked
+                // For instance, you could enable a mode in your application
+                // that allows text to be copied to the clipboard when selected
+                // You can also change the ToggleButton's content to indicate it's active
+                toggleButton.Content = "Selecting";
+                isSelect= true;
+                // Suppose you have a TextBox named 'MyTextBox' and you want to copy its content
+                // You can enable the logic here or simply copy the text to the clipboard directly.
+                // Clipboard.SetText(MyTextBox.Text); // This line would copy the text directly
+            }
+        }
 
+        // This method is called when the ToggleButton is unchecked
+        private void CopyToClipboardToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+            if (toggleButton != null)
+            {
+                // Perform actions to revert back to the normal state when the button is unchecked
+                // For example, you might disable the copy-to-clipboard mode here
+                // You can also revert the ToggleButton's content to its default state
+                toggleButton.Content = "Select";
+                isSelect = false;
+
+                // Any other cleanup or state restoration logic can go here
+            }
+        }
 
         private void CopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
@@ -50,16 +83,16 @@ namespace Simple_Paint
             Point newBottomRight = new Point(right, bottom);
 
             // Tính toán kích thước của hình chữ nhật
-            int width = (int)(newBottomRight.X - newTopLeft.X);
-            int height = (int)(newBottomRight.Y - newTopLeft.Y);
+            double width = (double)(newBottomRight.X - newTopLeft.X);
+            double height = (double)(newBottomRight.Y - newTopLeft.Y);
 
             // Tạo một RenderTargetBitmap để chụp nội dung của hình chữ nhật
             var scale = VisualTreeHelper.GetDpi(canvas).DpiScaleX;
             var renderTarget = new RenderTargetBitmap(
-                (int)(width * scale),
-                (int)(height * scale),
-                96 * scale,
-                96 * scale,
+                (int)Math.Round(width * scale),
+                  (int)Math.Round(height * scale),
+                    Math.Round(96 * scale),
+                    Math.Round(96 * scale),
                 PixelFormats.Pbgra32
             );
 
@@ -71,7 +104,7 @@ namespace Simple_Paint
                 VisualBrush visualBrush = new VisualBrush(canvas)
                 {
                     ViewboxUnits = BrushMappingMode.Absolute,
-                    Viewbox = new Rect(newTopLeft.X, newTopLeft.Y, width, height)
+                    Viewbox = new Rect(newTopLeft.X, newTopLeft.Y+50, width, height)
                 };
 
                 context.DrawRectangle(visualBrush, null, new Rect(0, 0, width, height));
@@ -98,9 +131,8 @@ namespace Simple_Paint
                 // Lưu hình ảnh vào clipboard dưới dạng PNG
                 Clipboard.SetImage(bitmapImage);
             }
+            clearRectangale();
         }
-
-
 
 
         private void ThicknessComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -133,124 +165,120 @@ namespace Simple_Paint
         }
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not LineShape)
-            {
-                curShape = new LineShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Line";
+
         }
         private void EllipseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not EllipseShape)
-            {
-                curShape = new EllipseShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Ellipse";
+
         }
         private void RectangleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not RectangleShape)
-            {
-                curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Rectangle";
         }
 
         private void TriangleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not TriangleShape)
-            {
-                curShape = new TriangleShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Triangle";
         }
 
         private void StarButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not StarShape)
-            {
-                curShape = new StarShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Star";
         }
 
         private void ArrowButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not ArrowShape)
-            {
-                curShape = new ArrowShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Arrow";
         }
         
         private void ArrowPentagonButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not PentagonArrowShape)
-            {
-                curShape = new PentagonArrowShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "ArrowPentagon";
         }
 
         private void CollateButton_Click(object sender, RoutedEventArgs e)
         {
-            if (curShape is not CollateShape)
-            {
-                curShape = new CollateShape(new Point(0, 0), new Point(0, 0));
-            }
+            shapeType = "Collate";
         }
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed && isDraw == false)
             {
-                Stroke stroke = new SolidStroke(borderColorMain, thickness, fillColorMain);
-                if (typeOfStroke == "Solid")
-                {
-                    stroke = new SolidStroke(borderColorMain, thickness, fillColorMain);
-                }
-                else if (typeOfStroke == "Dash")
-                {
-                    stroke = new DashStroke(borderColorMain, thickness, fillColorMain);
-                }
-                else if (typeOfStroke == "Dot")
-                {
-                    stroke = new DotStroke(borderColorMain, thickness, fillColorMain);
-                }
-                else if (typeOfStroke == "DashDotDot")
-                {
-                    stroke = new DashDotDotStroke(borderColorMain, thickness, fillColorMain);
-                }
-                curShape.stroke = stroke;
-
                 Point point = e.GetPosition(canvas);
                 topLeft = point;
-                if (point != null) {
-                    curShape.StartPoint = point;
-                    curShape.EndPoint = point;
+                if (isSelect == false)
+                {
+
+                    if (point != null)
+                    {
+                        curShape = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain);
+                        curShape.StartPoint = new Point(point.X, point.Y);
+                        curShape.EndPoint = new Point(point.X, point.Y);
+                        history.Add(curShape);
+                        curShape.Draw();
+                        isDraw = true;
+                    }
+                }
+                else
+                {
+                    curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
+                    curShape.stroke = new DashStroke(Brushes.Black, 1, null);
+                    curShape.StartPoint = new Point(point.X, point.Y);
+                    curShape.EndPoint = new Point(point.X, point.Y);
                     curShape.Draw();
                     isDraw = true;
-                }
-                
-            }
-            
 
+                }   
+            }
+        }
+        private void updateHistory()
+        {
+            for(int i = 0; i < history.Count; i++)
+            {
+                history[i].Draw();
+
+                history[i].UpdateEndPoint();
+            }
         }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Released && isDraw)
             {
+
                 bottomRight = e.GetPosition(canvas);
                 curShape.EndPoint = e.GetPosition(canvas);
                 isDraw = false;
             }
+        }
+        private void clearRectangale()
+        {
+            isSelect = false;
+            CopyToClipboardToggleButton.IsChecked = false;
+            curShape.stroke = new SolidStroke(Brushes.White, 2, null);
+
+            curShape.Draw();
+            curShape.UpdateEndPoint();
+            updateHistory();
+            // curShape.Remove();
+            isDraw = false;
         }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDraw)
             {
+                Point curPoint = e.GetPosition(canvas);
+
                 if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                 {
                     if (curShape is EllipseShape || curShape is RectangleShape)
                     {
                         // I want the endpoint make the shape into circle
 
-                        Point curPoint = e.GetPosition(canvas);
                         // Tính toán độ dài cạnh của hình vuông
                         double sideLength = Math.Min(Math.Abs(curPoint.X - curShape.StartPoint.X), Math.Abs(curPoint.Y - curShape.StartPoint.Y));
 
@@ -270,7 +298,7 @@ namespace Simple_Paint
                 }
                 else
                 {
-                    curShape.EndPoint = e.GetPosition(canvas);
+                    curShape.EndPoint = new Point(curPoint.X, curPoint.Y);
                     curShape.UpdateEndPoint();
                 }
             }

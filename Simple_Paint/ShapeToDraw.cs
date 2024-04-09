@@ -11,15 +11,67 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 namespace Simple_Paint
 {
-    class ShapeToDraw
+    public class ShapeToDraw
     {
-        public static Canvas canvas;
+        public static List<ShapeToDraw> prototypes = new List<ShapeToDraw>();
 
+        static ShapeToDraw(){
+                   prototypes.Add(new LineShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new EllipseShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new RectangleShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new TriangleShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new StarShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new ArrowShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new CollateShape(new Point(0, 0), new Point(0, 0)));
+                   prototypes.Add(new PentagonArrowShape(new Point(0, 0), new Point(0, 0)));
+        }
+
+        public static void AddPrototype(ShapeToDraw shape)
+        {
+            if(shape!=null)
+            {
+                bool isPresent = false;
+                for(int i = 0; i < prototypes.Count; i++)
+                {
+                    if (prototypes[i].GetType() == shape.GetType())
+                    {
+                        isPresent = true;
+                        break;
+                    }
+                }
+                if (!isPresent)
+                {
+                    prototypes.Add(shape);
+                }
+            }
+        }
+        public static ShapeToDraw GetPrototype(string shapeType)
+        {
+            for(int i = 0; i < prototypes.Count; i++)
+            {
+                if (prototypes[i].GetShapeType() == shapeType)
+                {
+                    return prototypes[i].Clone();
+                }
+            }
+            return null;
+        }
+        
+
+
+
+        public static Canvas canvas;
 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
 
         public Stroke stroke;
+        public ShapeToDraw(ShapeToDraw shapeToDraw)
+        {
+            this.StartPoint = shapeToDraw.StartPoint;
+            this.EndPoint = shapeToDraw.EndPoint;
+            this.stroke = shapeToDraw.stroke;
+        }
 
         public ShapeToDraw(Point startPoint, Point endPoint) 
         {
@@ -36,6 +88,18 @@ namespace Simple_Paint
         {
 
         }
+        virtual public void Remove()
+        {
+            
+        }   
+        virtual public string GetShapeType()
+        {
+            return "";
+        }
+        virtual public ShapeToDraw Clone()
+        {
+            return (ShapeToDraw)this.MemberwiseClone();
+        }
 
     }
 
@@ -46,6 +110,12 @@ namespace Simple_Paint
        {
 
        }
+        // create copy constructor
+        public LineShape(LineShape lineShape) : base(lineShape)
+        {
+            this.line = lineShape.line;
+        }
+
        public override void Draw()
        {
             // Draw the line in canvas with start point and end point
@@ -60,8 +130,6 @@ namespace Simple_Paint
             line.X2 = EndPoint.X;
             line.Y2 = EndPoint.Y;
             canvas.Children.Add(line);
-
-
        }
         public override void UpdateEndPoint()
         {
@@ -73,6 +141,18 @@ namespace Simple_Paint
         {
             line.X2 = StartPoint.X;
             line.Y2 = StartPoint.Y;
+        }
+        public override string GetShapeType()
+        {
+            return "Line";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new LineShape(this);
+        }
+        public override void Remove()
+        {
+            canvas.Children.Remove(line);
         }
 
     }
@@ -99,6 +179,11 @@ namespace Simple_Paint
             canvas.Children.Add(ellipse);
 
         }
+        //Create copy constructor
+        public EllipseShape(EllipseShape ellipseShape) : base(ellipseShape)
+        {
+            this.ellipse = ellipseShape.ellipse;
+        }
 
         public override void UpdateEndPoint()
         {
@@ -114,6 +199,18 @@ namespace Simple_Paint
                 Canvas.SetTop(ellipse, EndPoint.Y);
             }
         }
+        public override string GetShapeType()
+        {
+            return "Ellipse";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new EllipseShape(this);
+        }
+        public override void Remove()
+        {
+            canvas.Children.Remove(ellipse);
+        }
     }
 
     class RectangleShape : ShapeToDraw
@@ -122,6 +219,10 @@ namespace Simple_Paint
         public RectangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
 
+        }
+        public RectangleShape(RectangleShape rectangleShape) : base(rectangleShape)
+        {
+            this.rectangle = rectangleShape.rectangle;
         }
 
         public override void Draw()
@@ -138,7 +239,14 @@ namespace Simple_Paint
             Canvas.SetTop(rectangle, StartPoint.Y);
             canvas.Children.Add(rectangle);
         }
-
+        public override string GetShapeType()
+        {
+            return "Rectangle";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new RectangleShape(this);
+        }
         public override void UpdateEndPoint()
         {
             rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
@@ -174,6 +282,15 @@ namespace Simple_Paint
             
             
         }
+        public override void Remove()
+        {
+            if (canvas.Children.Contains(rectangle))
+            { 
+                canvas.Children.Remove(this.rectangle);
+                canvas.InvalidateVisual();
+                canvas.UpdateLayout();
+            }
+        }
     }
 
     class TriangleShape : ShapeToDraw
@@ -185,6 +302,28 @@ namespace Simple_Paint
         {
 
         }
+        public TriangleShape(TriangleShape triangleShape) : base(triangleShape)
+        {
+            this.triangle = triangleShape.triangle;
+            this.p1 = triangleShape.p1;
+            this.p2 = triangleShape.p2;
+            this.p3 = triangleShape.p3;
+            this.points = triangleShape.points;
+        }
+        public override string GetShapeType()
+        {
+            return "Triangle";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new TriangleShape(this);
+        }
+        public override void Remove()
+        {
+            canvas.Children.Remove(triangle);
+
+        }
+
 
         public override void Draw()
         {
@@ -253,7 +392,30 @@ namespace Simple_Paint
             line2 = new LineShape(new Point(0, 0), new Point(0, 0));
             line3 = new LineShape(new Point(0, 0), new Point(0, 0));
         }
-
+        public StarShape(StarShape starShape) : base(starShape)
+        {
+            this.triangle1 = starShape.triangle1;
+            this.triangle2 = starShape.triangle2;
+            this.line1 = starShape.line1;
+            this.line2 = starShape.line2;
+            this.line3 = starShape.line3;
+        }
+        public override string GetShapeType()
+        {
+            return "Star";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new StarShape(this);
+        }
+        public override void Remove()
+        {
+            triangle1.Remove();
+            triangle2.Remove();
+            line1.Remove();
+            line2.Remove();
+            line3.Remove();
+        }
         public override void Draw()
         {
 
@@ -306,7 +468,28 @@ namespace Simple_Paint
             rectangle = new RectangleShape(startPoint, endPoint);
             triangle = new TriangleShape(startPoint, endPoint);
         }
+        public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
+        {
+            this.rectangle = arrowShape.rectangle;
+            this.triangle = arrowShape.triangle;
+            this.line = arrowShape.line;
+        }
 
+
+        public override string GetShapeType()
+        {
+            return "Arrow";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new ArrowShape(this);
+        }
+        public override void Remove()
+        {
+            rectangle.Remove();
+            triangle.Remove();
+            line.Remove();
+        }
         public override void Draw()
         {
             line = new LineShape(new Point(0, 0), new Point(0, 0));
@@ -343,6 +526,10 @@ namespace Simple_Paint
         {
            
         }
+        public PentagonArrowShape(PentagonArrowShape pentagonArrowShape) : base(pentagonArrowShape)
+        {
+            
+        }
         public override void UpdateEndPoint()
         {
             rectangle.stroke = this.stroke;
@@ -362,6 +549,15 @@ namespace Simple_Paint
             line.UpdateEndPoint();
             line.UpdateStartPoint();
         }
+        public override ShapeToDraw Clone()
+        {
+            return new PentagonArrowShape(this);
+        }
+        public override string GetShapeType()
+        {
+            return "ArrowPentagon";
+        }
+
     }
 
     class CollateShape : ShapeToDraw
@@ -370,6 +566,11 @@ namespace Simple_Paint
         public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
 
+        }
+        public CollateShape(CollateShape collateShape) : base(collateShape)
+        {
+            this.triangle1 = collateShape.triangle1;
+            this.triangle2 = collateShape.triangle2;
         }
 
         public override void Draw()
@@ -383,7 +584,14 @@ namespace Simple_Paint
             triangle1.Draw();
             triangle2.Draw();
         }
-
+        public override string GetShapeType()
+        {
+            return "Collate";
+        }
+        public override ShapeToDraw Clone()
+        {
+            return new CollateShape(this);
+        }
         public override void UpdateEndPoint()
         {
             triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
@@ -393,6 +601,11 @@ namespace Simple_Paint
             triangle2.EndPoint = EndPoint;
             triangle2.UpdateEndPoint();
 
+        }
+        public override void Remove()
+        {
+            triangle1.Remove();
+            triangle2.Remove();
         }
     }
 

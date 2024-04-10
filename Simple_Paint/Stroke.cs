@@ -14,10 +14,10 @@ namespace Simple_Paint
         public static List<Stroke> prototypes = new List<Stroke>();
         static Stroke()
         {
-            prototypes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new DotStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new DashDotDotStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
+            prototypes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new DotStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new DashDotDotStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, null));
         }
         public static Stroke GetPrototype(string type)
         {

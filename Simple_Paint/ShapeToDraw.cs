@@ -66,6 +66,7 @@ namespace Simple_Paint
         public Point EndPoint { get; set; }
 
         public Stroke stroke;
+        public Stroke old;
         public ShapeToDraw(ShapeToDraw shapeToDraw)
         {
             this.StartPoint = shapeToDraw.StartPoint;
@@ -126,7 +127,7 @@ namespace Simple_Paint
         public Point dragStartPoint;
         public Point curDragPoint;
 
-        public void StartDrag(Point startPoint)
+        public bool StartDrag(Point startPoint)
         {
             // Save the starting point of the drag
             dragStartPoint = startPoint;
@@ -134,8 +135,13 @@ namespace Simple_Paint
             // Check if the start point is within the shape
             if (IsPointInShape(startPoint))
             {
-                // If it is, we can start dragging
                 isDragging = true;
+                return true;
+            }
+            else
+            {
+                Drop();
+                return false;
             }
         }
 
@@ -177,18 +183,18 @@ namespace Simple_Paint
         public Line line;
        public LineShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
        {
+            line = new Line();
 
-       }
+        }
         // create copy constructor
         public LineShape(LineShape lineShape) : base(lineShape)
         {
-            this.line = lineShape.line;
+            line = new Line();
         }
 
-       public override void Draw()
+        public override void Draw()
        {
             // Draw the line in canvas with start point and end point
-            line = new Line();
 
             line.Stroke = this.stroke.borderColor;
             line.StrokeThickness = this.stroke.thickness;
@@ -226,6 +232,11 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            line.Stroke = this.stroke.borderColor;
+            line.StrokeThickness = this.stroke.thickness;
+            line.StrokeDashArray = this.stroke.strokeDashArray;
+
+
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
@@ -244,11 +255,12 @@ namespace Simple_Paint
         public override void Draw()
         {
             
-            ellipse = new Ellipse();
             ellipse.Stroke = this.stroke.borderColor;
             ellipse.StrokeThickness = this.stroke.thickness;
             ellipse.StrokeDashArray = this.stroke.strokeDashArray;
             ellipse.Fill = this.stroke.fillColor;
+
+
             ellipse.Width = Math.Abs(EndPoint.X - StartPoint.X);
             ellipse.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
             Canvas.SetLeft(ellipse, StartPoint.X);
@@ -259,7 +271,7 @@ namespace Simple_Paint
         //Create copy constructor
         public EllipseShape(EllipseShape ellipseShape) : base(ellipseShape)
         {
-            this.ellipse = ellipseShape.ellipse;
+            this.ellipse = new Ellipse();
         }
 
         public override void UpdateEndPoint()
@@ -291,7 +303,12 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
-            if(EndPoint.X < StartPoint.X)
+            ellipse.Stroke = this.stroke.borderColor;
+            ellipse.StrokeThickness = this.stroke.thickness;
+            ellipse.StrokeDashArray = this.stroke.strokeDashArray;
+            ellipse.Fill = this.stroke.fillColor;
+
+            if (EndPoint.X < StartPoint.X)
             {
                 Canvas.SetLeft(ellipse, EndPoint.X);
             }
@@ -319,17 +336,16 @@ namespace Simple_Paint
         }
         public RectangleShape(RectangleShape rectangleShape) : base(rectangleShape)
         {
-            this.rectangle = rectangleShape.rectangle;
+            this.rectangle = new System.Windows.Shapes.Rectangle();
         }
 
         public override void Draw()
         {
-            rectangle = new System.Windows.Shapes.Rectangle();
             rectangle.Stroke = this.stroke.borderColor;
             rectangle.StrokeThickness = this.stroke.thickness;
             rectangle.StrokeDashArray = this.stroke.strokeDashArray;
-
             rectangle.Fill = this.stroke.fillColor;
+
             rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
             rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
             Canvas.SetLeft(rectangle, StartPoint.X);
@@ -391,7 +407,12 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
-            if(EndPoint.X < StartPoint.X)
+            rectangle.Stroke = this.stroke.borderColor;
+            rectangle.StrokeThickness = this.stroke.thickness;
+            rectangle.StrokeDashArray = this.stroke.strokeDashArray;
+            rectangle.Fill = this.stroke.fillColor;
+
+            if (EndPoint.X < StartPoint.X)
             {
                 Canvas.SetLeft(this.rectangle, EndPoint.X);
             }
@@ -445,14 +466,12 @@ namespace Simple_Paint
 
         public override void Draw()
         {
-            triangle = new Polygon();
 
             triangle.Stroke = this.stroke.borderColor;
             triangle.StrokeThickness = this.stroke.thickness;
             triangle.StrokeDashArray = this.stroke.strokeDashArray;
             triangle.Fill = this.stroke.fillColor;
 
-            points = new PointCollection();
             p1 = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 2, StartPoint.Y);
             p2 = new Point(StartPoint.X, EndPoint.Y);
             p3 = new Point(EndPoint.X, EndPoint.Y);
@@ -480,6 +499,7 @@ namespace Simple_Paint
         public void UpdateEndPointLandscapeOrientation()
         {
 
+
             p1.X = StartPoint.X;
             p1.Y = StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2;
             p2.X = EndPoint.X;
@@ -489,11 +509,20 @@ namespace Simple_Paint
             points[0] = p1;
             points[1] = p2;
             points[2] = p3;
+            triangle.Stroke = this.stroke.borderColor;
+            triangle.StrokeThickness = this.stroke.thickness;
+            triangle.StrokeDashArray = this.stroke.strokeDashArray;
+            triangle.Fill = this.stroke.fillColor;
             //triangle.Points = points;
         }
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+
+            triangle.Stroke = this.stroke.borderColor;
+            triangle.StrokeThickness = this.stroke.thickness;
+            triangle.StrokeDashArray = this.stroke.strokeDashArray;
+            triangle.Fill = this.stroke.fillColor;
             p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
             p1.Y = StartPoint.Y;
             p2.X = StartPoint.X;
@@ -593,6 +622,11 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            triangle1.stroke = this.stroke;
+            triangle2.stroke = this.stroke;
+            line1.stroke = this.stroke;
+            line2.stroke = this.stroke;
+            line3.stroke = this.stroke;
 
             triangle1.StartPoint = StartPoint;
             triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
@@ -608,12 +642,9 @@ namespace Simple_Paint
             line3.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
 
 
-            line1.UpdateEndPoint();
-            line1.UpdateStartPoint();
-            line2.UpdateEndPoint();
-            line2.UpdateStartPoint();
-            line3.UpdateEndPoint();
-            line3.UpdateStartPoint();
+            line1.UpdateStartAndEndPoint();
+            line2.UpdateStartAndEndPoint();
+            line3.UpdateStartAndEndPoint();
             triangle1.UpdateStartAndEndPoint();
             triangle2.UpdateStartAndEndPoint();
         }
@@ -627,11 +658,13 @@ namespace Simple_Paint
         {
             rectangle = new RectangleShape(startPoint, endPoint);
             triangle = new TriangleShape(startPoint, endPoint);
+            line = new LineShape(new Point(0, 0), new Point(0, 0));
         }
         public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
         {
             this.rectangle = (RectangleShape?)arrowShape.rectangle.Clone();
             this.triangle = (TriangleShape?)arrowShape.triangle.Clone();
+            this.line = (LineShape?)arrowShape.line.Clone();
         }
 
 
@@ -651,7 +684,6 @@ namespace Simple_Paint
         }
         public override void Draw()
         {
-            line = new LineShape(new Point(0, 0), new Point(0, 0));
             rectangle.stroke = this.stroke;
             triangle.stroke = this.stroke;
             line.stroke = this.stroke;
@@ -663,6 +695,7 @@ namespace Simple_Paint
 
         public override void UpdateEndPoint()
         {
+
 
             rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
@@ -680,12 +713,18 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+
             /*rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             rectangle.isDragging = this.isDragging;
             rectangle.dragStartPoint = this.dragStartPoint;
             rectangle.curDragPoint = this.curDragPoint;
             rectangle.Drag(curDragPoint)*/
+
+            rectangle.stroke = this.stroke;
+            triangle.stroke = this.stroke;
+            line.stroke = this.stroke;
+
             rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             rectangle.UpdateEndPoint();
@@ -698,6 +737,10 @@ namespace Simple_Paint
             line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             line.UpdateEndPoint();
             line.UpdateStartPoint();
+
+            rectangle.UpdateStartAndEndPoint();
+            line.UpdateStartAndEndPoint();
+
         }
     }
 
@@ -724,7 +767,6 @@ namespace Simple_Paint
             triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
             triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
             triangle.UpdateEndPointLandscapeOrientation();
-
             line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y);
             line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
             line.UpdateEndPoint();
@@ -741,10 +783,16 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+
+            rectangle.stroke = this.stroke;
+            triangle.stroke = this.stroke;
+            line.stroke = this.stroke;
+
             rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
             rectangle.UpdateEndPoint();
             rectangle.UpdateStartPoint();
+
             triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
             triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
             triangle.UpdateEndPointLandscapeOrientation();
@@ -753,6 +801,9 @@ namespace Simple_Paint
             line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
             line.UpdateEndPoint();
             line.UpdateStartPoint();
+
+            rectangle.UpdateStartAndEndPoint();
+            line.UpdateStartAndEndPoint();
         }
     }
 
@@ -812,13 +863,15 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            triangle1.stroke = this.stroke;
+            triangle2.stroke = this.stroke;
 
             triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
             triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y);
-            triangle1.UpdateEndPoint();
+            triangle1.UpdateStartAndEndPoint();
             triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
             triangle2.EndPoint = EndPoint;
-            triangle2.UpdateEndPoint();
+            triangle2.UpdateStartAndEndPoint();
         }
     }
 

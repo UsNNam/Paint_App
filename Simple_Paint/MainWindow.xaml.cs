@@ -28,7 +28,12 @@ namespace Simple_Paint
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
         public static string shapeType = "Line";
 
-        public static bool isSelect = false;
+        public static int code = 0;
+        
+        public const int NORMAL = 0;
+        public const int ISSELECT = 1;
+        public const int ISSELECTELEMENT = 2;
+
 
         public MainWindow()
         {
@@ -47,7 +52,7 @@ namespace Simple_Paint
                 // that allows text to be copied to the clipboard when selected
                 // You can also change the ToggleButton's content to indicate it's active
                 toggleButton.Content = "Selecting";
-                isSelect= true;
+                code = ISSELECT;
                 // Suppose you have a TextBox named 'MyTextBox' and you want to copy its content
                 // You can enable the logic here or simply copy the text to the clipboard directly.
                 // Clipboard.SetText(MyTextBox.Text); // This line would copy the text directly
@@ -64,7 +69,7 @@ namespace Simple_Paint
                 // For example, you might disable the copy-to-clipboard mode here
                 // You can also revert the ToggleButton's content to its default state
                 toggleButton.Content = "Select";
-                isSelect = false;
+                code = NORMAL;
 
                 // Any other cleanup or state restoration logic can go here
             }
@@ -132,6 +137,8 @@ namespace Simple_Paint
                 Clipboard.SetImage(bitmapImage);
             }
             clearRectangale();
+            code = NORMAL;
+
         }
 
 
@@ -209,29 +216,32 @@ namespace Simple_Paint
             {
                 Point point = e.GetPosition(canvas);
                 topLeft = point;
-                if (isSelect == false)
+                switch(code)
                 {
-
-                    if (point != null)
-                    {
-                        curShape = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain);
+                    case NORMAL:
+                        if (point != null)
+                        {
+                            curShape = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain);
+                            curShape.StartPoint = new Point(point.X, point.Y);
+                            curShape.EndPoint = new Point(point.X, point.Y);
+                            history.Add(curShape);
+                            curShape.Draw();
+                            isDraw = true;
+                        }
+                        break;
+                    case ISSELECT:
+                        curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
+                        curShape.stroke = new DashStroke(Brushes.Black, 1, null);
                         curShape.StartPoint = new Point(point.X, point.Y);
                         curShape.EndPoint = new Point(point.X, point.Y);
-                        history.Add(curShape);
                         curShape.Draw();
                         isDraw = true;
-                    }
+                        break;
+                    case ISSELECTELEMENT:
+                        curShape.StartDrag(point);
+                        break;
                 }
-                else
-                {
-                    curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
-                    curShape.stroke = new DashStroke(Brushes.Black, 1, null);
-                    curShape.StartPoint = new Point(point.X, point.Y);
-                    curShape.EndPoint = new Point(point.X, point.Y);
-                    curShape.Draw();
-                    isDraw = true;
 
-                }   
             }
         }
         private void updateHistory()
@@ -243,35 +253,63 @@ namespace Simple_Paint
                 history[i].UpdateEndPoint();
             }
         }
+        private ShapeToDraw GetShapeChoosen(Point point)
+        {
+            for(int i = history.Count-1; i >=0;i--)
+            {
+                if (history[i].IsPointInShape(point))
+                {
+                    return history[i];
+                }
+            }
+            return null;
+        }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Released && isDraw)
+            if(e.LeftButton == MouseButtonState.Released )
             {
+                if (isDraw)
+                {
+                    bottomRight = e.GetPosition(canvas);
+                    if (bottomRight.Equals(topLeft))
+                    {
+                        curShape = null;
+                        history.Remove(history[history.Count - 1]);
+                        curShape = GetShapeChoosen(bottomRight);
+                   /*     Stroke old = newcurShape.stroke;
+                        curShape.stroke = new SolidStroke(Brushes.White, 3, Brushes.White);
+                        curShape.Draw();
+                        updateHistory();
+                        curShape.stroke = old;*/
 
-                bottomRight = e.GetPosition(canvas);
-                curShape.EndPoint = e.GetPosition(canvas);
-                isDraw = false;
+                        if (curShape != null)
+                        {
+                            code = ISSELECTELEMENT;
+                        }
+
+                    }
+                    else
+                    {
+                        curShape.EndPoint = e.GetPosition(canvas);
+                    }
+                    isDraw = false;
+                }
+                else if(code == ISSELECTELEMENT)
+                {
+                    code = NORMAL;
+                    curShape.Drop();
+                }
             }
         }
-        private void clearRectangale()
-        {
-            isSelect = false;
-            CopyToClipboardToggleButton.IsChecked = false;
-            curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
-            curShape.Draw();
-            curShape.UpdateEndPoint();
-            updateHistory();
-            // curShape.Remove();
-            isDraw = false;
-        }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
+            Point curPoint = e.GetPosition(canvas);
+
             if (isDraw)
             {
-                Point curPoint = e.GetPosition(canvas);
 
                 if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                 {
@@ -302,8 +340,23 @@ namespace Simple_Paint
                     curShape.UpdateEndPoint();
                 }
             }
+            if(code == ISSELECTELEMENT)
+            {
+                curShape.Drag(curPoint);
+            }
         }
+        private void clearRectangale()
+        {
+            code = NORMAL;
+            CopyToClipboardToggleButton.IsChecked = false;
+            curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
+            curShape.Draw();
+            curShape.UpdateEndPoint();
+            updateHistory();
+            // curShape.Remove();
+            isDraw = false;
+        }
         private void RadioButton_Click(object sender, RoutedEventArgs e)
         {
 

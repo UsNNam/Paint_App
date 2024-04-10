@@ -78,6 +78,26 @@ namespace Simple_Paint
             StartPoint = startPoint;
             EndPoint = endPoint;
         }
+        public bool IsPointInShape(Point point)
+        {
+            // Tính toán lại để đảm bảo đúng cặp điểm góc trái trên và góc phải dưới
+            double left = Math.Min(StartPoint.X, EndPoint.X);
+            double top = Math.Min(StartPoint.Y, EndPoint.Y);
+            double right = Math.Max(StartPoint.X, EndPoint.X);
+            double bottom = Math.Max(StartPoint.Y, EndPoint.Y);
+
+            // Tạo điểm góc trái trên và góc phải dưới mới
+            Point newTopLeft = new Point(left, top);
+
+            Point newBottomRight = new Point(right, bottom);
+
+            if(point.X >= newTopLeft.X && point.X <= newBottomRight.X && point.Y >= newTopLeft.Y && point.Y <= newBottomRight.Y)
+            {
+                return true;
+            }
+            return false;
+
+        }
 
        
         virtual public void Draw()
@@ -99,6 +119,55 @@ namespace Simple_Paint
         virtual public ShapeToDraw Clone()
         {
             return (ShapeToDraw)this.MemberwiseClone();
+        }
+
+
+        public bool isDragging;
+        public Point dragStartPoint;
+        public Point curDragPoint;
+
+        public void StartDrag(Point startPoint)
+        {
+            // Save the starting point of the drag
+            dragStartPoint = startPoint;
+
+            // Check if the start point is within the shape
+            if (IsPointInShape(startPoint))
+            {
+                // If it is, we can start dragging
+                isDragging = true;
+            }
+        }
+
+        public void Drag(Point currentPoint)
+        {
+            if (isDragging)
+            {
+                curDragPoint = currentPoint;
+                // Calculate the offset from the start point
+                double offsetX = currentPoint.X - dragStartPoint.X;
+                double offsetY = currentPoint.Y - dragStartPoint.Y;
+
+                // Update the start and end points of the shape
+                StartPoint = new Point(StartPoint.X + offsetX, StartPoint.Y + offsetY);
+                EndPoint = new Point(EndPoint.X + offsetX, EndPoint.Y + offsetY);
+
+                // Update the drag start point for the next call
+                dragStartPoint = currentPoint;
+
+                // Redraw the shape at its new location (you may need to call a method to refresh the canvas here)
+                UpdateStartAndEndPoint();
+            }
+        }
+
+        public void Drop()
+        {
+            // End the dragging operation
+            isDragging = false;
+        }
+        virtual public void UpdateStartAndEndPoint()
+        {
+
         }
 
     }
@@ -153,6 +222,14 @@ namespace Simple_Paint
         public override void Remove()
         {
             canvas.Children.Remove(line);
+        }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            line.X1 = StartPoint.X;
+            line.Y1 = StartPoint.Y;
+            line.X2 = EndPoint.X;
+            line.Y2 = EndPoint.Y;
         }
 
     }
@@ -211,11 +288,31 @@ namespace Simple_Paint
         {
             canvas.Children.Remove(ellipse);
         }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            if(EndPoint.X < StartPoint.X)
+            {
+                Canvas.SetLeft(ellipse, EndPoint.X);
+            }
+            else
+            {
+                Canvas.SetLeft(ellipse, StartPoint.X);
+            }
+            if(EndPoint.Y < StartPoint.Y)
+            {
+                Canvas.SetTop(ellipse, EndPoint.Y);
+            }
+            else
+            {
+                Canvas.SetTop(ellipse, StartPoint.Y);
+            }
+        }
     }
 
     class RectangleShape : ShapeToDraw
     {
-        Rectangle rectangle;
+        public Rectangle rectangle;
         public RectangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
 
@@ -291,6 +388,26 @@ namespace Simple_Paint
                 canvas.UpdateLayout();
             }
         }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            if(EndPoint.X < StartPoint.X)
+            {
+                Canvas.SetLeft(this.rectangle, EndPoint.X);
+            }
+            else
+            {
+                Canvas.SetLeft(this.rectangle, StartPoint.X);
+            }
+            if(EndPoint.Y < StartPoint.Y)
+            {
+                Canvas.SetTop(this.rectangle, EndPoint.Y);
+            }
+            else
+            {
+                Canvas.SetTop(this.rectangle, StartPoint.Y);
+            }
+        }
     }
 
     class TriangleShape : ShapeToDraw
@@ -304,11 +421,12 @@ namespace Simple_Paint
         }
         public TriangleShape(TriangleShape triangleShape) : base(triangleShape)
         {
-            this.triangle = triangleShape.triangle;
-            this.p1 = triangleShape.p1;
-            this.p2 = triangleShape.p2;
-            this.p3 = triangleShape.p3;
-            this.points = triangleShape.points;
+            // Copy constructor
+            this.triangle = new Polygon();
+            this.p1 = new Point(triangleShape.p1.X,triangleShape.p1.Y);
+            this.p2 = new Point(triangleShape.p2.X, triangleShape.p2.Y);
+            this.p3 = new Point(triangleShape.p3.X, triangleShape.p3.Y);
+            this.points = new PointCollection();
         }
         public override string GetShapeType()
         {
@@ -347,8 +465,7 @@ namespace Simple_Paint
 
         public override void UpdateEndPoint()
         {
-            
-            p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
+                        p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
             p1.Y = StartPoint.Y;
             p2.X = StartPoint.X;
             p2.Y = EndPoint.Y;
@@ -374,6 +491,20 @@ namespace Simple_Paint
             points[2] = p3;
             //triangle.Points = points;
         }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
+            p1.Y = StartPoint.Y;
+            p2.X = StartPoint.X;
+            p2.Y = EndPoint.Y;
+            p3.X = EndPoint.X;
+            p3.Y = EndPoint.Y;
+            points[0] = p1;
+            points[1] = p2;
+            points[2] = p3;
+            //triangle.Points = points;
+        }
 
     }
 
@@ -383,22 +514,24 @@ namespace Simple_Paint
         LineShape line1, line2, line3;
         public StarShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-            Point newEndPoint1 = new Point(endPoint.X, startPoint.Y + (endPoint.Y - startPoint.Y) * 3/4);
+            Point newEndPoint1 = new Point(endPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 3/4,0));
+            Point newStartPoint = new Point(startPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 4 / 3,0));
+            Point newEndPoint = new Point(endPoint.X, startPoint.Y);
+
             triangle1 = new TriangleShape(startPoint, newEndPoint1);
-            Point newStartPoint = new Point(startPoint.X, startPoint.Y + (endPoint.Y - startPoint.Y) * 4/3 );
-            Point newEndPoint = new Point(endPoint.X, startPoint.Y );
             triangle2 = new TriangleShape(newStartPoint, newEndPoint);
+
             line1 = new LineShape(new Point(0, 0), new Point(0, 0));
             line2 = new LineShape(new Point(0, 0), new Point(0, 0));
             line3 = new LineShape(new Point(0, 0), new Point(0, 0));
         }
         public StarShape(StarShape starShape) : base(starShape)
         {
-            this.triangle1 = starShape.triangle1;
-            this.triangle2 = starShape.triangle2;
-            this.line1 = starShape.line1;
-            this.line2 = starShape.line2;
-            this.line3 = starShape.line3;
+            this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
+            this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
+            this.line1 = (LineShape?)starShape.line1.Clone();
+            this.line2 = (LineShape?)starShape.line2.Clone();
+            this.line3 = (LineShape?)starShape.line3.Clone();
         }
         public override string GetShapeType()
         {
@@ -457,6 +590,33 @@ namespace Simple_Paint
             triangle2.UpdateEndPoint();
             
         }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+
+            triangle1.StartPoint = StartPoint;
+            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
+            triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
+            line1.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            line1.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+
+            line2.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            line2.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+
+            line3.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 5 / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            line3.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+
+
+            line1.UpdateEndPoint();
+            line1.UpdateStartPoint();
+            line2.UpdateEndPoint();
+            line2.UpdateStartPoint();
+            line3.UpdateEndPoint();
+            line3.UpdateStartPoint();
+            triangle1.UpdateStartAndEndPoint();
+            triangle2.UpdateStartAndEndPoint();
+        }
     }
 
     class ArrowShape : ShapeToDraw {
@@ -470,9 +630,8 @@ namespace Simple_Paint
         }
         public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
         {
-            this.rectangle = arrowShape.rectangle;
-            this.triangle = arrowShape.triangle;
-            this.line = arrowShape.line;
+            this.rectangle = (RectangleShape?)arrowShape.rectangle.Clone();
+            this.triangle = (TriangleShape?)arrowShape.triangle.Clone();
         }
 
 
@@ -505,6 +664,28 @@ namespace Simple_Paint
         public override void UpdateEndPoint()
         {
 
+            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            rectangle.UpdateEndPoint();
+            rectangle.UpdateStartPoint();
+            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            triangle.UpdateEndPointLandscapeOrientation();
+
+            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            line.UpdateEndPoint();
+            line.UpdateStartPoint();
+        }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            /*rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+            rectangle.isDragging = this.isDragging;
+            rectangle.dragStartPoint = this.dragStartPoint;
+            rectangle.curDragPoint = this.curDragPoint;
+            rectangle.Drag(curDragPoint)*/
             rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             rectangle.UpdateEndPoint();
@@ -557,7 +738,22 @@ namespace Simple_Paint
         {
             return "ArrowPentagon";
         }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y);
+            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            rectangle.UpdateEndPoint();
+            rectangle.UpdateStartPoint();
+            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            triangle.UpdateEndPointLandscapeOrientation();
 
+            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y);
+            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+            line.UpdateEndPoint();
+            line.UpdateStartPoint();
+        }
     }
 
     class CollateShape : ShapeToDraw
@@ -565,18 +761,24 @@ namespace Simple_Paint
         TriangleShape triangle1, triangle2;
         public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
+            triangle1 = new TriangleShape(StartPoint, EndPoint);
+            triangle2 = new TriangleShape(StartPoint, EndPoint);
 
         }
         public CollateShape(CollateShape collateShape) : base(collateShape)
         {
-            this.triangle1 = collateShape.triangle1;
-            this.triangle2 = collateShape.triangle2;
+            this.triangle1 = (TriangleShape?)collateShape.triangle1.Clone();
+            this.triangle2 = (TriangleShape?)collateShape.triangle2.Clone();
         }
 
         public override void Draw()
         {
-            triangle1 = new TriangleShape(StartPoint, EndPoint);
-            triangle2 = new TriangleShape(new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2), new Point(EndPoint.X, EndPoint.Y));
+            triangle1.StartPoint = StartPoint;
+            triangle1.EndPoint = EndPoint;
+
+            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            triangle2.EndPoint = new Point(EndPoint.X, EndPoint.Y);
+            
 
             triangle1.stroke = this.stroke;
             triangle2.stroke = this.stroke;
@@ -606,6 +808,17 @@ namespace Simple_Paint
         {
             triangle1.Remove();
             triangle2.Remove();
+        }
+        //UpdateStartAndEndPoint
+        public override void UpdateStartAndEndPoint()
+        {
+
+            triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y);
+            triangle1.UpdateEndPoint();
+            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
+            triangle2.EndPoint = EndPoint;
+            triangle2.UpdateEndPoint();
         }
     }
 

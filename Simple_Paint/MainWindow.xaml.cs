@@ -250,8 +250,7 @@ namespace Simple_Paint
                         }
                         break;
                     case ISSELECT:
-                        curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
-                        curShape.stroke = new DashStroke(Brushes.Black, 1, null);
+                        curShape = FactoryShape.CreateShape("Rectangle", "Dash", Brushes.Black, 1, null);
                         curShape.StartPoint = new Point(point.X, point.Y);
                         curShape.EndPoint = new Point(point.X, point.Y);
                         curShape.Draw();
@@ -287,9 +286,7 @@ namespace Simple_Paint
         {
             for(int i = 0; i < history.Count; i++)
             {
-                history[i].Draw();
-
-                history[i].UpdateEndPoint();
+                history[i].UpdateStartAndEndPoint();
             }
         }
         private ShapeToDraw GetShapeChoosen(Point point)
@@ -373,8 +370,8 @@ namespace Simple_Paint
             CopyToClipboardToggleButton.IsChecked = false;
             curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
-            curShape.Draw();
-            curShape.UpdateEndPoint();
+            curShape.UpdateStartAndEndPoint();
+            curShape.Remove();
             updateHistory();
             // curShape.Remove();
             isDraw = false;

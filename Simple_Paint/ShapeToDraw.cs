@@ -250,7 +250,7 @@ namespace Simple_Paint
         Ellipse ellipse;
         public EllipseShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-
+            ellipse = new Ellipse();
         }
         public override void Draw()
         {
@@ -332,6 +332,7 @@ namespace Simple_Paint
         public Rectangle rectangle;
         public RectangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
+            this.rectangle = new System.Windows.Shapes.Rectangle();
 
         }
         public RectangleShape(RectangleShape rectangleShape) : base(rectangleShape)
@@ -341,16 +342,22 @@ namespace Simple_Paint
 
         public override void Draw()
         {
-            rectangle.Stroke = this.stroke.borderColor;
-            rectangle.StrokeThickness = this.stroke.thickness;
-            rectangle.StrokeDashArray = this.stroke.strokeDashArray;
-            rectangle.Fill = this.stroke.fillColor;
+            if (!canvas.Children.Contains(rectangle))
+            {
 
-            rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
-            rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
-            Canvas.SetLeft(rectangle, StartPoint.X);
-            Canvas.SetTop(rectangle, StartPoint.Y);
-            canvas.Children.Add(rectangle);
+                if (this.stroke != null)
+                {
+                    rectangle.Stroke = this.stroke.borderColor;
+                    rectangle.StrokeThickness = this.stroke.thickness;
+                    rectangle.StrokeDashArray = this.stroke.strokeDashArray;
+                    rectangle.Fill = this.stroke.fillColor;
+                }
+                rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
+                rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
+                Canvas.SetLeft(rectangle, StartPoint.X);
+                Canvas.SetTop(rectangle, StartPoint.Y);
+                canvas.Children.Add(rectangle);
+            }
         }
         public override string GetShapeType()
         {

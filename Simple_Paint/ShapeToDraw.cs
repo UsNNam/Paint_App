@@ -550,8 +550,8 @@ namespace Simple_Paint
             Point newStartPoint = new Point(startPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 4 / 3,0));
             Point newEndPoint = new Point(endPoint.X, startPoint.Y);
 
-            triangle1 = new TriangleShape(startPoint, newEndPoint1);
-            triangle2 = new TriangleShape(newStartPoint, newEndPoint);
+            triangle1 = new TriangleShape(new Point(0, 0), new Point(0, 0));
+            triangle2 = new TriangleShape(new Point(0, 0), new Point(0, 0));
 
             line1 = new LineShape(new Point(0, 0), new Point(0, 0));
             line2 = new LineShape(new Point(0, 0), new Point(0, 0));

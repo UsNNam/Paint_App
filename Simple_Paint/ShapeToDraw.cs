@@ -466,7 +466,10 @@ namespace Simple_Paint
 
         public override void Draw()
         {
-
+            if(EndPoint.Equals(new Point(0,0)))
+            {
+                EndPoint = StartPoint;
+            }
             triangle.Stroke = this.stroke.borderColor;
             triangle.StrokeThickness = this.stroke.thickness;
             triangle.StrokeDashArray = this.stroke.strokeDashArray;
@@ -547,8 +550,8 @@ namespace Simple_Paint
             Point newStartPoint = new Point(startPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 4 / 3,0));
             Point newEndPoint = new Point(endPoint.X, startPoint.Y);
 
-            triangle1 = new TriangleShape(startPoint, newEndPoint1);
-            triangle2 = new TriangleShape(newStartPoint, newEndPoint);
+            triangle1 = new TriangleShape(new Point(0, 0), new Point(0, 0));
+            triangle2 = new TriangleShape(new Point(0, 0), new Point(0, 0));
 
             line1 = new LineShape(new Point(0, 0), new Point(0, 0));
             line2 = new LineShape(new Point(0, 0), new Point(0, 0));
@@ -557,7 +560,12 @@ namespace Simple_Paint
         public StarShape(StarShape starShape) : base(starShape)
         {
             this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
+
             this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
+            triangle1.StartPoint = starShape.StartPoint;
+            triangle1.EndPoint = starShape.StartPoint;
+            triangle2.StartPoint = starShape.StartPoint;
+            triangle2.EndPoint = starShape.StartPoint;
             this.line1 = (LineShape?)starShape.line1.Clone();
             this.line2 = (LineShape?)starShape.line2.Clone();
             this.line3 = (LineShape?)starShape.line3.Clone();
@@ -596,7 +604,10 @@ namespace Simple_Paint
         }
         public override void UpdateEndPoint()
         {
-
+            if(StartPoint == EndPoint)
+            {
+                return;
+            }
             triangle1.EndPoint= new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3/4);
             triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
             triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
@@ -628,6 +639,10 @@ namespace Simple_Paint
             line2.stroke = this.stroke;
             line3.stroke = this.stroke;
 
+            if (StartPoint == EndPoint)
+            {
+                return;
+            }
             triangle1.StartPoint = StartPoint;
             triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);

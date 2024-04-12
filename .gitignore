@@ -6,6 +6,8 @@
 *.user
 *.sln.docstates
 
+./Simple_Paint/bin
+./Simple_Paint/obj
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

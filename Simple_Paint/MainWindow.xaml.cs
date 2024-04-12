@@ -34,6 +34,8 @@ namespace Simple_Paint
         public const int NORMAL = 0;
         public const int ISSELECT = 1;
         public const int ISSELECTELEMENT = 2;
+        public const int ISDRAGELEMENT = 3;
+
 
 
         public MainWindow()
@@ -154,6 +156,11 @@ namespace Simple_Paint
                 if (double.TryParse(selectedThickness, out double thicknessValue))
                 {
                     thickness = double.Parse(selectedThickness);
+                    if (code == ISSELECTELEMENT)
+                    {
+                        curShape.stroke.thickness = thickness;
+                        curShape.UpdateStartAndEndPoint();
+                    }
                 }
                 else
                 {
@@ -167,8 +174,13 @@ namespace Simple_Paint
             {
                 ComboBoxItem typeItem = (ComboBoxItem)comboBox.SelectedItem;
                 string type = typeItem.Content.ToString();
-
-                typeOfStroke = type;
+               typeOfStroke = type;
+                
+                if (code == ISSELECTELEMENT)
+                {
+                    curShape.stroke = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain).stroke;
+                    curShape.UpdateStartAndEndPoint();
+                }
             }
         }
         private void LineButton_Click(object sender, RoutedEventArgs e)
@@ -213,7 +225,15 @@ namespace Simple_Paint
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Pressed && isDraw == false)
+            // Check if it is a double click
+            if (e.ClickCount == 2)
+            {
+                // Handle double-click event here
+                Canvas_DoubleClick(sender, e);
+                return;
+            }
+
+            if (e.LeftButton == MouseButtonState.Pressed && isDraw == false)
             {
                 Point point = e.GetPosition(canvas);
                 topLeft = point;
@@ -231,16 +251,34 @@ namespace Simple_Paint
                         }
                         break;
                     case ISSELECT:
-                        curShape = new RectangleShape(new Point(0, 0), new Point(0, 0));
-                        curShape.stroke = new DashStroke(Brushes.Black, 1, null);
+                        curShape = FactoryShape.CreateShape("Rectangle", "Dash", Brushes.Black, 1, null);
                         curShape.StartPoint = new Point(point.X, point.Y);
                         curShape.EndPoint = new Point(point.X, point.Y);
                         curShape.Draw();
                         isDraw = true;
                         break;
                     case ISSELECTELEMENT:
-                        curShape.StartDrag(point);
+                        code = ISDRAGELEMENT;
+                        if(!curShape.StartDrag(point))
+                        {
+                            code = NORMAL;
+                        }
                         break;
+                }
+
+            }
+        }
+        private void Canvas_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Point bottomRight = e.GetPosition(canvas);
+            if (bottomRight.Equals(topLeft))
+            {
+                curShape = null;
+                curShape = GetShapeChoosen(bottomRight);
+
+                if (curShape != null)
+                {
+                    code = ISDRAGELEMENT;
                 }
 
             }
@@ -249,9 +287,7 @@ namespace Simple_Paint
         {
             for(int i = 0; i < history.Count; i++)
             {
-                history[i].Draw();
-
-                history[i].UpdateEndPoint();
+                history[i].UpdateStartAndEndPoint();
             }
         }
         private ShapeToDraw GetShapeChoosen(Point point)
@@ -297,10 +333,10 @@ namespace Simple_Paint
                     }
                     isDraw = false;
                 }
-                else if(code == ISSELECTELEMENT)
+                
+                if(code == ISDRAGELEMENT)
                 {
-                    code = NORMAL;
-                    curShape.Drop();
+                    code = ISSELECTELEMENT;
                 }
             }
         }
@@ -370,7 +406,7 @@ namespace Simple_Paint
                     curShape.UpdateEndPoint();
                 }
             }
-            if(code == ISSELECTELEMENT)
+            if(code == ISDRAGELEMENT)
             {
                 curShape.Drag(curPoint);
             }
@@ -381,8 +417,8 @@ namespace Simple_Paint
             CopyToClipboardToggleButton.IsChecked = false;
             curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
-            curShape.Draw();
-            curShape.UpdateEndPoint();
+            curShape.UpdateStartAndEndPoint();
+            curShape.Remove();
             updateHistory();
             // curShape.Remove();
             isDraw = false;
@@ -398,11 +434,14 @@ namespace Simple_Paint
             if (radioButton.IsChecked == true)
             {
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
+                if (code == ISSELECTELEMENT)
+                {
+                    curShape.stroke.fillColor = fillColorMain;
+                    curShape.UpdateStartAndEndPoint();
+                }
+
             }
-            if (curShape != null)
-            {
-                
-            }
+
         }
 
         private void BorderColor_Click(object sender, RoutedEventArgs e)
@@ -411,10 +450,11 @@ namespace Simple_Paint
             if (radioButton.IsChecked == true)
             {
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
-            }
-            if (curShape != null)
-            {
-                
+                if (code == ISSELECTELEMENT)
+                {
+                    curShape.stroke.borderColor = borderColorMain.Clone();
+                    curShape.UpdateStartAndEndPoint();
+                }
             }
         }
     }

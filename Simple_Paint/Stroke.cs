@@ -14,10 +14,10 @@ namespace Simple_Paint
         public static List<Stroke> prototypes = new List<Stroke>();
         static Stroke()
         {
-            prototypes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new DotStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new DashDotDotStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
-            prototypes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, new SolidColorBrush(Colors.White)));
+            prototypes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new DotStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new DashDotDotStroke(new SolidColorBrush(Colors.Black), 1, null));
+            prototypes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, null));
         }
         public static Stroke GetPrototype(string type)
         {
@@ -42,9 +42,25 @@ namespace Simple_Paint
         //Create copy contructor 
         public Stroke(Stroke stroke)
         {
-            this.borderColor = stroke.borderColor;
+            this.borderColor = new SolidColorBrush(stroke.borderColor.Color);
             this.thickness = stroke.thickness;
-            this.fillColor = stroke.fillColor;
+            if (stroke.fillColor != null)
+            {
+                this.fillColor = new SolidColorBrush(stroke.fillColor.Color);
+            }
+            if (stroke.strokeDashArray != null)
+            {
+                // Create a new DoubleCollection and copy the items
+                this.strokeDashArray = new DoubleCollection();
+                foreach (var dash in stroke.strokeDashArray)
+                {
+                    this.strokeDashArray.Add(dash);
+                }
+            }
+            else
+            {
+                this.strokeDashArray = null;
+            }
         }
 
         public Stroke(SolidColorBrush borderColor, double thickness, SolidColorBrush fillColor)
@@ -94,7 +110,7 @@ namespace Simple_Paint
         //Create copy contructor
         public DashStroke(DashStroke stroke) : base(stroke)
         {
-            this.strokeDashArray = stroke.strokeDashArray;
+
         }
         public override void SetStroke()
         {
@@ -118,7 +134,7 @@ namespace Simple_Paint
         //Create copy contructor
         public DotStroke(DotStroke stroke) : base(stroke)
         {
-            this.strokeDashArray = stroke.strokeDashArray;
+
         }
         public override string GetStrokeType()
         {
@@ -144,7 +160,7 @@ namespace Simple_Paint
         //Create copy contructor
         public DashDotDotStroke(DashDotDotStroke stroke) : base(stroke)
         {
-            this.strokeDashArray = stroke.strokeDashArray;
+
         }
         public override void SetStroke()
         {
@@ -169,7 +185,7 @@ namespace Simple_Paint
         //Create copy contructor
         public SolidStroke(SolidStroke stroke) : base(stroke)
         {
-            this.strokeDashArray = stroke.strokeDashArray;
+
         }
 
         public override void SetStroke()

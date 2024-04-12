@@ -6,9 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+
 namespace Simple_Paint
 {
     public class ShapeToDraw
@@ -64,6 +67,8 @@ namespace Simple_Paint
 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
+        public Point centerPoint { get; set; }
+        public TextBox textBox;
 
         public Stroke stroke;
         public ShapeToDraw(ShapeToDraw shapeToDraw)
@@ -71,12 +76,18 @@ namespace Simple_Paint
             this.StartPoint = shapeToDraw.StartPoint;
             this.EndPoint = shapeToDraw.EndPoint;
             this.stroke = shapeToDraw.stroke;
+            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
         }
 
         public ShapeToDraw(Point startPoint, Point endPoint) 
         {
             StartPoint = startPoint;
             EndPoint = endPoint;
+            
+        }
+        public virtual void attachMouseRightClickEvent()
+        {
+            
         }
         public bool IsPointInShape(Point point)
         {
@@ -99,6 +110,58 @@ namespace Simple_Paint
 
         }
 
+        public static int CalculateMaxLettersInLine(string paragraph)
+        {
+            string[] lines = paragraph.Split('\n');
+            int maxLetters = lines.Max(line => line.Length);
+            return maxLetters;
+        }
+
+        virtual public void attachTextBox(SolidColorBrush color, SolidColorBrush backgroundColor, int fontsize, string fontFamily)
+        {
+            if(textBox != null)
+            {
+               return;
+            }
+            textBox = FactoryWord.CreateTextBox(backgroundColor, fontsize, color, fontFamily);
+
+
+            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
+            updateTextBoxPosition();
+
+            textBox.TextChanged += (sender, e) =>
+            {
+                if(textBox.Width < (EndPoint.X - StartPoint.X))
+                {
+                    textBox.Width = CalculateMaxLettersInLine(textBox.Text) * 10;
+                    
+                }
+                if(textBox.Height < (EndPoint.Y - StartPoint.Y))
+                {
+                    //Calculate height depending on the number of lines and font size
+                    textBox.Height = textBox.LineCount * fontsize * 20 / 12;
+                }
+                
+
+                updateTextBoxPosition();
+            };
+
+            textBox.KeyDown += (sender, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    // Insert a new line character
+                    textBox.Text += "\n";
+
+                    // Move the caret to the end of the text
+                    textBox.CaretIndex = textBox.Text.Length;
+                }
+            };
+
+            canvas.Children.Add(textBox);
+
+        }
+
        
         virtual public void Draw()
         {
@@ -106,7 +169,7 @@ namespace Simple_Paint
         }
         virtual public void UpdateEndPoint()
         {
-
+            
         }
         virtual public void Remove()
         {
@@ -167,7 +230,16 @@ namespace Simple_Paint
         }
         virtual public void UpdateStartAndEndPoint()
         {
-
+            updateTextBoxPosition();
+        }
+        virtual public void updateTextBoxPosition()
+        {
+            if(textBox == null)
+            {
+                return;
+            }
+            Canvas.SetLeft(textBox, (StartPoint.X + EndPoint.X) / 2 - textBox.Width / 2);
+            Canvas.SetTop(textBox, (StartPoint.Y + EndPoint.Y) / 2 - textBox.Height / 2);
         }
 
     }
@@ -226,6 +298,7 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
@@ -291,6 +364,7 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
             if(EndPoint.X < StartPoint.X)
             {
                 Canvas.SetLeft(ellipse, EndPoint.X);
@@ -313,6 +387,7 @@ namespace Simple_Paint
     class RectangleShape : ShapeToDraw
     {
         public Rectangle rectangle;
+        
         public RectangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
 
@@ -321,6 +396,7 @@ namespace Simple_Paint
         {
             this.rectangle = rectangleShape.rectangle;
         }
+
 
         public override void Draw()
         {
@@ -356,7 +432,7 @@ namespace Simple_Paint
             {
                 Canvas.SetTop(rectangle, EndPoint.Y);
             }
-
+            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
         }
         public void UpdateStartPoint()
         {
@@ -376,8 +452,8 @@ namespace Simple_Paint
             {
                 Canvas.SetTop(rectangle, StartPoint.Y);
             }
-            
-            
+            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
+
         }
         public override void Remove()
         {
@@ -391,6 +467,7 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
             if(EndPoint.X < StartPoint.X)
             {
                 Canvas.SetLeft(this.rectangle, EndPoint.X);

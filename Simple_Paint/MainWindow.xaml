@@ -10,6 +10,7 @@
     Width="1300"
     Height="650"
     Background="White"
+    MouseDoubleClick="Rectangle_MouseDoubleClick"
     mc:Ignorable="d">
     <Window.Resources>
         <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
@@ -120,6 +121,15 @@
                 BorderBrush="#FF969696"
                 Click="CollateButton_Click"
                 Content="Collate"
+                GroupName="Shape"
+                Style="{StaticResource ColorfulRadioButton}" />
+            <RadioButton
+                Name="AddTextButton"
+                Width="60"
+                Height="40"
+                BorderBrush="#FF969696"
+
+                Content="Add Text"
                 GroupName="Shape"
                 Style="{StaticResource ColorfulRadioButton}" />
 
@@ -282,11 +292,40 @@
 
             </Canvas>
         </ToolBar>
+        <StackPanel Orientation="Horizontal" Width="650" Height="50" DockPanel.Dock="Top">
+            <TextBlock VerticalAlignment="Center">Size: </TextBlock>
+            <ComboBox
+                Name="SizeCombobox"
+                Width="100"
+                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                VerticalAlignment="Center"
+                Style="{StaticResource ComboBoxStyle}">
+                <ComboBoxItem Content="8" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="10" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="12" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="14" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="16" Style="{StaticResource ComboBoxItemStyle}" />
+            </ComboBox>
+            <TextBlock VerticalAlignment="Center" Margin="20,0,0,0">Font family: </TextBlock>
+            <ComboBox
+                Name="FontFamilyCombobox"
+                Width="100"
+                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                VerticalAlignment="Center"
+                Style="{StaticResource ComboBoxStyle}">
+                <ComboBoxItem Content="Arial" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Times New Roman" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Courier New" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Comic Sans MS" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Tahoma" Style="{StaticResource ComboBoxItemStyle}" />
+            </ComboBox>
+        </StackPanel>
         <Canvas
             x:Name="canvas"
             Background="White"
             MouseLeftButtonDown="Canvas_MouseDown"
             MouseLeftButtonUp="Canvas_MouseUp"
+            
             MouseMove="canvas_MouseMove">
             <Canvas.ContextMenu>
                 <ContextMenu>

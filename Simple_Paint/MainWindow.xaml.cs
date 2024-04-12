@@ -5,6 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Wpf.Ui.Interop.WinDef;
 
 namespace Simple_Paint
 {
@@ -288,6 +289,7 @@ namespace Simple_Paint
                             code = ISSELECTELEMENT;
                         }
 
+
                     }
                     else
                     {
@@ -300,6 +302,34 @@ namespace Simple_Paint
                     code = NORMAL;
                     curShape.Drop();
                 }
+            }
+        }
+
+        public void Rectangle_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+            if (!isDraw)
+            {
+                bottomRight = e.GetPosition(canvas);
+                curShape = GetShapeChoosen(bottomRight);
+                if(curShape != null)
+                {
+                    var selectedSizeItem = SizeCombobox.SelectedItem as ComboBoxItem;
+                    string selectedSize = "12";
+                    if (selectedSizeItem != null) 
+                    {
+                        selectedSize = selectedSizeItem.Content.ToString();
+                    }
+                    var selectedFontItem = FontFamilyCombobox.SelectedItem as ComboBoxItem;
+                    string selectedFont = "Arial";
+                    if (selectedFontItem != null)
+                    {
+                        selectedFont = selectedFontItem.Content.ToString();
+                    }
+
+                    curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
+                }
+                    
             }
         }
 

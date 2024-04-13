@@ -67,7 +67,6 @@ namespace Simple_Paint
 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
-        public Point centerPoint { get; set; }
         public TextBox textBox;
 
         public Stroke stroke;
@@ -77,7 +76,61 @@ namespace Simple_Paint
             this.StartPoint = shapeToDraw.StartPoint;
             this.EndPoint = shapeToDraw.EndPoint;
             this.stroke = shapeToDraw.stroke;
-            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
+            if (shapeToDraw.textBox != null) {
+                this.textBox = CloneTextBox(shapeToDraw.textBox);
+                
+            } 
+
+        }
+
+        public TextBox CloneTextBox(TextBox textBox)
+        {
+            TextBox newTextBox = new TextBox();
+            newTextBox.Text = textBox.Text;
+            newTextBox.Width = textBox.Width;
+            newTextBox.Height = textBox.Height;
+            newTextBox.BorderBrush = textBox.BorderBrush;
+            Style textBoxStyle = new Style(typeof(TextBox));
+
+            textBoxStyle.Setters.Add(new Setter(TextBox.ForegroundProperty, textBox.Foreground));
+            newTextBox.Style = textBoxStyle;
+            newTextBox.BorderThickness = new Thickness(0);
+            newTextBox.FontFamily = textBox.FontFamily;
+            newTextBox.FontSize = textBox.FontSize;
+            newTextBox.Background = textBox.Background;
+            newTextBox.HorizontalAlignment = HorizontalAlignment.Center;
+            newTextBox.VerticalAlignment = VerticalAlignment.Center;
+            newTextBox.TextAlignment = TextAlignment.Center;
+
+            //Add textChanged and keyDown event
+            newTextBox.TextChanged += (sender, e) =>
+            {
+                if (newTextBox.Width < (EndPoint.X - StartPoint.X))
+                {
+                    newTextBox.Width = CalculateMaxLettersInLine(newTextBox.Text) * 10;
+
+                }
+                if (newTextBox.Height < (EndPoint.Y - StartPoint.Y))
+                {
+                    //Calculate height depending on the number of lines and font size
+                    newTextBox.Height = newTextBox.LineCount * (int)newTextBox.FontSize * 20 / 12;
+                }
+                updateTextBoxPosition();
+            };
+
+            newTextBox.KeyDown += (sender, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    // Insert a new line character
+                    newTextBox.Text += "\n";
+
+                    // Move the caret to the end of the text
+                    newTextBox.CaretIndex = newTextBox.Text.Length;
+                }
+            };
+
+            return newTextBox;
         }
 
         public ShapeToDraw(Point startPoint, Point endPoint) 
@@ -127,7 +180,6 @@ namespace Simple_Paint
             textBox = FactoryWord.CreateTextBox(backgroundColor, fontsize, color, fontFamily);
 
 
-            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
             updateTextBoxPosition();
 
             textBox.TextChanged += (sender, e) =>
@@ -166,7 +218,11 @@ namespace Simple_Paint
        
         virtual public void Draw()
         {
-            
+            if(textBox != null)
+            {
+                updateTextBoxPosition();
+                canvas.Children.Add(textBox);
+            }
         }
         virtual public void UpdateEndPoint()
         {
@@ -244,6 +300,7 @@ namespace Simple_Paint
             {
                 return;
             }
+            
             Canvas.SetLeft(textBox, (StartPoint.X + EndPoint.X) / 2 - textBox.Width / 2);
             Canvas.SetTop(textBox, (StartPoint.Y + EndPoint.Y) / 2 - textBox.Height / 2);
         }
@@ -267,7 +324,7 @@ namespace Simple_Paint
         public override void Draw()
        {
             // Draw the line in canvas with start point and end point
-
+            
             line.Stroke = this.stroke.borderColor;
             line.StrokeThickness = this.stroke.thickness;
             line.StrokeDashArray = this.stroke.strokeDashArray;
@@ -277,7 +334,8 @@ namespace Simple_Paint
             line.X2 = EndPoint.X;
             line.Y2 = EndPoint.Y;
             canvas.Children.Add(line);
-       }
+            base.Draw();
+        }
         public override void UpdateEndPoint()
         {
             line.X1 = EndPoint.X;
@@ -339,7 +397,7 @@ namespace Simple_Paint
             Canvas.SetLeft(ellipse, StartPoint.X);
             Canvas.SetTop(ellipse, StartPoint.Y);
             canvas.Children.Add(ellipse);
-
+            base.Draw();
         }
         //Create copy constructor
         public EllipseShape(EllipseShape ellipseShape) : base(ellipseShape)
@@ -417,6 +475,7 @@ namespace Simple_Paint
 
         public override void Draw()
         {
+            
             if (!canvas.Children.Contains(rectangle))
             {
 
@@ -433,6 +492,7 @@ namespace Simple_Paint
                 Canvas.SetTop(rectangle, StartPoint.Y);
                 canvas.Children.Add(rectangle);
             }
+            base.Draw();
         }
         public override string GetShapeType()
         {
@@ -454,7 +514,6 @@ namespace Simple_Paint
             {
                 Canvas.SetTop(rectangle, EndPoint.Y);
             }
-            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
         }
         public void UpdateStartPoint()
         {
@@ -474,7 +533,6 @@ namespace Simple_Paint
             {
                 Canvas.SetTop(rectangle, StartPoint.Y);
             }
-            centerPoint = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
 
         }
         public override void Remove()
@@ -548,7 +606,7 @@ namespace Simple_Paint
 
         public override void Draw()
         {
-            if(EndPoint.Equals(new Point(0,0)))
+            if (EndPoint.Equals(new Point(0,0)))
             {
                 EndPoint = StartPoint;
             }
@@ -565,6 +623,7 @@ namespace Simple_Paint
             points.Add(p3);
             triangle.Points = points;
             canvas.Children.Add(triangle);
+            base.Draw();
         }
 
         public override void UpdateEndPoint()
@@ -670,7 +729,7 @@ namespace Simple_Paint
         }
         public override void Draw()
         {
-
+            
             triangle1.stroke = this.stroke;
             triangle2.stroke = this.stroke;
             line1.stroke = this.stroke;
@@ -683,6 +742,8 @@ namespace Simple_Paint
             line1.Draw();
             line2.Draw();
             line3.Draw();
+
+            base.Draw();
         }
         public override void UpdateEndPoint()
         {
@@ -781,6 +842,7 @@ namespace Simple_Paint
         }
         public override void Draw()
         {
+            
             rectangle.stroke = this.stroke;
             triangle.stroke = this.stroke;
             line.stroke = this.stroke;
@@ -788,6 +850,8 @@ namespace Simple_Paint
             rectangle.Draw();
             triangle.Draw();
             line.Draw();
+
+            base.Draw();
         }
 
         public override void UpdateEndPoint()
@@ -921,6 +985,7 @@ namespace Simple_Paint
 
         public override void Draw()
         {
+            
             triangle1.StartPoint = StartPoint;
             triangle1.EndPoint = EndPoint;
 
@@ -933,6 +998,8 @@ namespace Simple_Paint
 
             triangle1.Draw();
             triangle2.Draw();
+
+            base.Draw();
         }
         public override string GetShapeType()
         {

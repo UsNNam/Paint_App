@@ -28,6 +28,7 @@ namespace Simple_Paint
 
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
         public static string shapeType = "Line";
+        public static ShapeToDraw copyShape = null;
 
         public static int code = 0;
         
@@ -44,6 +45,34 @@ namespace Simple_Paint
             ShapeToDraw.canvas = canvas;
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + C here (e.g., perform copy operation)
+                if (!isDraw)
+                {
+                    copyShape = curShape;
+                }
+
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+            else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + V here (e.g., perform paste operation)
+                if(!isDraw && copyShape != null)
+                {
+                    copyShape = copyShape.Clone();
+                    copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
+                    copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
+                    history.Add(copyShape);
+                    copyShape.Draw();
+                }
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+        }
+
         // This method is called when the ToggleButton is checked
         private void CopyToClipboardToggleButton_Checked(object sender, RoutedEventArgs e)
         {
@@ -183,6 +212,8 @@ namespace Simple_Paint
                 }
             }
         }
+
+
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             shapeType = "Line";
@@ -231,6 +262,12 @@ namespace Simple_Paint
                 // Handle double-click event here
                 Canvas_DoubleClick(sender, e);
                 return;
+            }
+
+            // Check if the clicked element is not a TextBox or its child
+            if (!(e.OriginalSource is TextBox))
+            {
+                this.Focus();
             }
 
             if (e.LeftButton == MouseButtonState.Pressed && isDraw == false)
@@ -341,31 +378,29 @@ namespace Simple_Paint
             }
         }
 
-        public void Rectangle_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        public void Mouse_DoubleClick(object sender, MouseButtonEventArgs e)
         {
 
-            if (!isDraw)
-            {
-                bottomRight = e.GetPosition(canvas);
-                curShape = GetShapeChoosen(bottomRight);
-                if(curShape != null)
-                {
-                    var selectedSizeItem = SizeCombobox.SelectedItem as ComboBoxItem;
-                    string selectedSize = "12";
-                    if (selectedSizeItem != null) 
-                    {
-                        selectedSize = selectedSizeItem.Content.ToString();
-                    }
-                    var selectedFontItem = FontFamilyCombobox.SelectedItem as ComboBoxItem;
-                    string selectedFont = "Arial";
-                    if (selectedFontItem != null)
-                    {
-                        selectedFont = selectedFontItem.Content.ToString();
-                    }
+        }
 
-                    curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
+        private void AddText_Button(object sender, RoutedEventArgs e)
+        {
+            if (curShape != null && !isDraw)
+            {
+                var selectedSizeItem = SizeCombobox.SelectedItem as ComboBoxItem;
+                string selectedSize = "12";
+                if (selectedSizeItem != null)
+                {
+                    selectedSize = selectedSizeItem.Content.ToString();
                 }
-                    
+                var selectedFontItem = FontFamilyCombobox.SelectedItem as ComboBoxItem;
+                string selectedFont = "Arial";
+                if (selectedFontItem != null)
+                {
+                    selectedFont = selectedFontItem.Content.ToString();
+                }
+
+                curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
             }
         }
 

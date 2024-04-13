@@ -10,9 +10,40 @@
     Width="1300"
     Height="650"
     Background="White"
-    MouseDoubleClick="Rectangle_MouseDoubleClick"
+    MouseDoubleClick="Mouse_DoubleClick"
+    PreviewKeyDown="MainWindow_KeyDown"
     mc:Ignorable="d">
     <Window.Resources>
+        <!-- Define a style for the button -->
+        <Style x:Key="CustomButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A8C"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#003F63"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
             <Setter Property="Template">
                 <Setter.Value>
@@ -221,6 +252,16 @@
                                 Height="20"
                                 Fill="Blue" />
                         </RadioButton>
+                        <RadioButton
+                            Click="FillColor_Click"
+                            GroupName="ColorFill"
+                            Style="{StaticResource CustomRadioButtonStyle}"
+                            Tag="{x:Static Brushes.Transparent}">
+                            <Ellipse
+                                Width="20"
+                                Height="20"
+                                Fill="Wheat" />
+                        </RadioButton>
                     </StackPanel>
 
                     <!--  Border Color Selection  -->
@@ -319,6 +360,16 @@
                 <ComboBoxItem Content="Comic Sans MS" Style="{StaticResource ComboBoxItemStyle}" />
                 <ComboBoxItem Content="Tahoma" Style="{StaticResource ComboBoxItemStyle}" />
             </ComboBox>
+            <Button
+                Name="AddText"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="AddText_Button"
+                Content="Add Text"
+                Style="{StaticResource CustomButtonStyle}">
+                
+            </Button>
         </StackPanel>
         <Canvas
             x:Name="canvas"

@@ -29,6 +29,7 @@ namespace Simple_Paint
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
         public static string shapeType = "Line";
         public static ShapeToDraw copyShape = null;
+        public static int copyCutState = 0;
 
         public static int code = 0;
         
@@ -43,6 +44,7 @@ namespace Simple_Paint
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
+            Caretaker.add(new Memento(history));
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
 
@@ -54,6 +56,18 @@ namespace Simple_Paint
                 if (!isDraw)
                 {
                     copyShape = curShape;
+                    copyCutState = 0;
+                }
+
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+            else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + C here (e.g., perform copy operation)
+                if (!isDraw)
+                {
+                    copyShape = curShape;
+                    copyCutState = 1;
                 }
 
                 e.Handled = true; // Mark the event as handled to prevent further processing
@@ -63,6 +77,11 @@ namespace Simple_Paint
                 // Handle Ctrl + V here (e.g., perform paste operation)
                 if(!isDraw && copyShape != null)
                 {
+                    if(copyCutState == 1)
+                    {
+                        copyShape.Remove();
+                        history.Remove(copyShape);
+                    }
                     copyShape = copyShape.Clone();
                     copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
                     copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
@@ -283,6 +302,7 @@ namespace Simple_Paint
                             curShape.StartPoint = new Point(point.X, point.Y);
                             curShape.EndPoint = new Point(point.X, point.Y);
                             history.Add(curShape);
+                            
                             curShape.Draw();
                             isDraw = true;
                         }
@@ -302,6 +322,8 @@ namespace Simple_Paint
                         }
                         break;
                 }
+
+                
 
             }
         }
@@ -367,7 +389,9 @@ namespace Simple_Paint
                     else
                     {
                         curShape.EndPoint = e.GetPosition(canvas);
+                        Caretaker.add(new Memento(history));
                     }
+                    
                     isDraw = false;
                 }
                 
@@ -402,6 +426,16 @@ namespace Simple_Paint
 
                 curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
             }
+        }
+
+        private void Undo_Button(object sender, RoutedEventArgs e)
+        {
+            Caretaker.undo();
+        }
+
+        private void Redo_Button(object sender, RoutedEventArgs e)
+        {
+            Caretaker.redo();
         }
 
 
@@ -471,8 +505,11 @@ namespace Simple_Paint
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
+                    Caretaker.add(new Memento(history));
                     curShape.stroke.fillColor = fillColorMain;
                     curShape.UpdateStartAndEndPoint();
+                    
+
                 }
 
             }
@@ -487,8 +524,10 @@ namespace Simple_Paint
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
+                    Caretaker.add(new Memento(history));
                     curShape.stroke.borderColor = borderColorMain.Clone();
                     curShape.UpdateStartAndEndPoint();
+                    
                 }
             }
         }

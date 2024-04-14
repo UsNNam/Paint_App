@@ -154,15 +154,6 @@
                 Content="Collate"
                 GroupName="Shape"
                 Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="AddTextButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-
-                Content="Add Text"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
 
             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                 <!--  FillColor and BorderColor RadioButtons  -->
@@ -333,7 +324,7 @@
 
             </Canvas>
         </ToolBar>
-        <StackPanel Orientation="Horizontal" Width="650" Height="50" DockPanel.Dock="Top">
+        <StackPanel Orientation="Horizontal" Width="Auto" Height="50" DockPanel.Dock="Top">
             <TextBlock VerticalAlignment="Center">Size: </TextBlock>
             <ComboBox
                 Name="SizeCombobox"
@@ -368,7 +359,28 @@
                 Click="AddText_Button"
                 Content="Add Text"
                 Style="{StaticResource CustomButtonStyle}">
-                
+
+            </Button>
+            <Button
+                Name="Undo"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="Undo_Button"
+                Content="Undo"
+                Style="{StaticResource CustomButtonStyle}">
+
+            </Button>
+
+            <Button
+                Name="Redo"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="Redo_Button"
+                Content="Redo"
+                Style="{StaticResource CustomButtonStyle}">
+
             </Button>
         </StackPanel>
         <Canvas

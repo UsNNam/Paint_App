@@ -230,7 +230,10 @@ namespace Simple_Paint
         }
         virtual public void Remove()
         {
-            
+            if(textBox != null)
+            {
+                canvas.Children.Remove(textBox);
+            }
         }   
         virtual public string GetShapeType()
         {
@@ -314,7 +317,7 @@ namespace Simple_Paint
        {
             line = new Line();
 
-        }
+       }
         // create copy constructor
         public LineShape(LineShape lineShape) : base(lineShape)
         {
@@ -357,6 +360,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             canvas.Children.Remove(line);
         }
         //UpdateStartAndEndPoint
@@ -429,7 +433,9 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             canvas.Children.Remove(ellipse);
+            
         }
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
@@ -537,6 +543,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             if (canvas.Children.Contains(rectangle))
             { 
                 canvas.Children.Remove(this.rectangle);
@@ -587,7 +594,11 @@ namespace Simple_Paint
             this.p1 = new Point(triangleShape.p1.X,triangleShape.p1.Y);
             this.p2 = new Point(triangleShape.p2.X, triangleShape.p2.Y);
             this.p3 = new Point(triangleShape.p3.X, triangleShape.p3.Y);
+
             this.points = new PointCollection();
+            points.Add(p1);
+            points.Add(p2);
+            points.Add(p3);
         }
         public override string GetShapeType()
         {
@@ -599,6 +610,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             canvas.Children.Remove(triangle);
 
         }
@@ -618,9 +630,7 @@ namespace Simple_Paint
             p1 = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 2, StartPoint.Y);
             p2 = new Point(StartPoint.X, EndPoint.Y);
             p3 = new Point(EndPoint.X, EndPoint.Y);
-            points.Add(p1);
-            points.Add(p2);
-            points.Add(p3);
+
             triangle.Points = points;
             canvas.Children.Add(triangle);
             base.Draw();
@@ -721,6 +731,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             triangle1.Remove();
             triangle2.Remove();
             line1.Remove();
@@ -735,6 +746,8 @@ namespace Simple_Paint
             line1.stroke = this.stroke;
             line2.stroke = this.stroke;
             line3.stroke = this.stroke;
+
+            UpdateStartAndEndPoint();
 
             triangle1.StartPoint = StartPoint;
             triangle1.Draw();
@@ -817,12 +830,14 @@ namespace Simple_Paint
             rectangle = new RectangleShape(startPoint, endPoint);
             triangle = new TriangleShape(startPoint, endPoint);
             line = new LineShape(new Point(0, 0), new Point(0, 0));
+
         }
         public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
         {
             this.rectangle = (RectangleShape?)arrowShape.rectangle.Clone();
             this.triangle = (TriangleShape?)arrowShape.triangle.Clone();
             this.line = (LineShape?)arrowShape.line.Clone();
+            //UpdateStartAndEndPoint();
         }
 
 
@@ -836,6 +851,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             rectangle.Remove();
             triangle.Remove();
             line.Remove();
@@ -846,6 +862,8 @@ namespace Simple_Paint
             rectangle.stroke = this.stroke;
             triangle.stroke = this.stroke;
             line.stroke = this.stroke;
+
+            UpdateStartAndEndPoint();
 
             rectangle.Draw();
             triangle.Draw();
@@ -985,7 +1003,7 @@ namespace Simple_Paint
 
         public override void Draw()
         {
-            
+            UpdateStartAndEndPoint();
             triangle1.StartPoint = StartPoint;
             triangle1.EndPoint = EndPoint;
 
@@ -1021,6 +1039,7 @@ namespace Simple_Paint
         }
         public override void Remove()
         {
+            base.Remove();
             triangle1.Remove();
             triangle2.Remove();
         }

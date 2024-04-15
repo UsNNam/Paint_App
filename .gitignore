@@ -192,3 +192,6 @@ git_stats/*
 StyleCop.Cache
 /Simple_Paint/obj/
 /Simple_Paint/bin/
+/Simple_Paint/obj
+/Simple_Paint/obj
+/Simple_Paint/bin

@@ -10,8 +10,40 @@
     Width="1300"
     Height="650"
     Background="White"
+    MouseDoubleClick="Mouse_DoubleClick"
+    PreviewKeyDown="MainWindow_KeyDown"
     mc:Ignorable="d">
     <Window.Resources>
+        <!-- Define a style for the button -->
+        <Style x:Key="CustomButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A8C"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#003F63"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
             <Setter Property="Template">
                 <Setter.Value>
@@ -211,6 +243,16 @@
                                 Height="20"
                                 Fill="Blue" />
                         </RadioButton>
+                        <RadioButton
+                            Click="FillColor_Click"
+                            GroupName="ColorFill"
+                            Style="{StaticResource CustomRadioButtonStyle}"
+                            Tag="{x:Static Brushes.Transparent}">
+                            <Ellipse
+                                Width="20"
+                                Height="20"
+                                Fill="Wheat" />
+                        </RadioButton>
                     </StackPanel>
 
                     <!--  Border Color Selection  -->
@@ -282,11 +324,71 @@
 
             </Canvas>
         </ToolBar>
+        <StackPanel Orientation="Horizontal" Width="Auto" Height="50" DockPanel.Dock="Top">
+            <TextBlock VerticalAlignment="Center">Size: </TextBlock>
+            <ComboBox
+                Name="SizeCombobox"
+                Width="100"
+                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                VerticalAlignment="Center"
+                Style="{StaticResource ComboBoxStyle}">
+                <ComboBoxItem Content="8" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="10" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="12" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="14" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="16" Style="{StaticResource ComboBoxItemStyle}" />
+            </ComboBox>
+            <TextBlock VerticalAlignment="Center" Margin="20,0,0,0">Font family: </TextBlock>
+            <ComboBox
+                Name="FontFamilyCombobox"
+                Width="100"
+                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                VerticalAlignment="Center"
+                Style="{StaticResource ComboBoxStyle}">
+                <ComboBoxItem Content="Arial" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Times New Roman" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Courier New" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Comic Sans MS" Style="{StaticResource ComboBoxItemStyle}" />
+                <ComboBoxItem Content="Tahoma" Style="{StaticResource ComboBoxItemStyle}" />
+            </ComboBox>
+            <Button
+                Name="AddText"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="AddText_Button"
+                Content="Add Text"
+                Style="{StaticResource CustomButtonStyle}">
+
+            </Button>
+            <Button
+                Name="Undo"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="Undo_Button"
+                Content="Undo"
+                Style="{StaticResource CustomButtonStyle}">
+
+            </Button>
+
+            <Button
+                Name="Redo"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="Redo_Button"
+                Content="Redo"
+                Style="{StaticResource CustomButtonStyle}">
+
+            </Button>
+        </StackPanel>
         <Canvas
             x:Name="canvas"
             Background="White"
             MouseLeftButtonDown="Canvas_MouseDown"
             MouseLeftButtonUp="Canvas_MouseUp"
+            
             MouseMove="canvas_MouseMove">
             <Canvas.ContextMenu>
                 <ContextMenu>

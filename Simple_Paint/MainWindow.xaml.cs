@@ -5,6 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Wpf.Ui.Interop.WinDef;
 
 namespace Simple_Paint
 {
@@ -27,6 +28,8 @@ namespace Simple_Paint
 
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
         public static string shapeType = "Line";
+        public static ShapeToDraw copyShape = null;
+        public static int copyCutState = 0;
 
         public static int code = 0;
         
@@ -42,8 +45,54 @@ namespace Simple_Paint
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
+            Caretaker.add(new Memento(history));
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + C here (e.g., perform copy operation)
+                if (!isDraw)
+                {
+                    copyShape = curShape;
+                    copyCutState = 0;
+                }
+
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+            else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + C here (e.g., perform copy operation)
+                if (!isDraw)
+                {
+                    copyShape = curShape;
+                    copyCutState = 1;
+                }
+
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+            else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Handle Ctrl + V here (e.g., perform paste operation)
+                if(!isDraw && copyShape != null)
+                {
+                    if(copyCutState == 1)
+                    {
+                        copyShape.Remove();
+                        history.Remove(copyShape);
+                    }
+                    copyShape = copyShape.Clone();
+                    copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
+                    copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
+                    history.Add(copyShape);
+                    copyShape.Draw();
+                }
+                e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+        }
+
         // This method is called when the ToggleButton is checked
         private void CopyToClipboardToggleButton_Checked(object sender, RoutedEventArgs e)
         {
@@ -183,6 +232,8 @@ namespace Simple_Paint
                 }
             }
         }
+
+
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             shapeType = "Line";
@@ -268,7 +319,13 @@ namespace Simple_Paint
                 isDoubleClick = true;
             }
 
-            if ((e.LeftButton == MouseButtonState.Pressed && isDraw == false)||(isDoubleClick))
+            // Check if the clicked element is not a TextBox or its child
+            if (!(e.OriginalSource is TextBox))
+            {
+                this.Focus();
+            }
+
+            if (e.LeftButton == MouseButtonState.Pressed && isDraw == false||(isDoubleClick))
             {
                 Point point = e.GetPosition(canvas);
                 topLeft = point;
@@ -328,8 +385,26 @@ namespace Simple_Paint
             {
                 if (isDraw)
                 {
-                    
-                    bottomRight= e.GetPosition(canvas);
+                    bottomRight = e.GetPosition(canvas);
+                    if (bottomRight.Equals(topLeft))
+                    {
+                        curShape = null;
+                        history.Remove(history[history.Count - 1]);
+                        curShape = GetShapeChoosen(bottomRight);
+                   /*     Stroke old = newcurShape.stroke;
+                        curShape.stroke = new SolidStroke(Brushes.White, 3, Brushes.White);
+                        curShape.Draw();
+                        updateHistory();
+                        curShape.stroke = old;*/
+
+                        if (curShape != null)
+                        {
+                            code = ISSELECTELEMENT;
+                        }
+
+
+                    }
+                    else
                     {
                         curShape.EndPoint = e.GetPosition(canvas);
                         if (curShape.StartPoint != curShape.EndPoint)
@@ -337,7 +412,9 @@ namespace Simple_Paint
                             history.Add(curShape);
                             curShape.UpdateEndPoint();
                         }
+                        Caretaker.add(new Memento(history));
                     }
+                    
                     isDraw = false;
                 }
                 
@@ -349,6 +426,42 @@ namespace Simple_Paint
             }
             canvas.Cursor = Cursors.Arrow;
 
+        }
+
+        public void Mouse_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void AddText_Button(object sender, RoutedEventArgs e)
+        {
+            if (curShape != null && !isDraw)
+            {
+                var selectedSizeItem = SizeCombobox.SelectedItem as ComboBoxItem;
+                string selectedSize = "12";
+                if (selectedSizeItem != null)
+                {
+                    selectedSize = selectedSizeItem.Content.ToString();
+                }
+                var selectedFontItem = FontFamilyCombobox.SelectedItem as ComboBoxItem;
+                string selectedFont = "Arial";
+                if (selectedFontItem != null)
+                {
+                    selectedFont = selectedFontItem.Content.ToString();
+                }
+
+                curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
+            }
+        }
+
+        private void Undo_Button(object sender, RoutedEventArgs e)
+        {
+            Caretaker.undo();
+        }
+
+        private void Redo_Button(object sender, RoutedEventArgs e)
+        {
+            Caretaker.redo();
         }
 
 
@@ -419,8 +532,11 @@ namespace Simple_Paint
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
+                    Caretaker.add(new Memento(history));
                     curShape.stroke.fillColor = fillColorMain;
                     curShape.UpdateStartAndEndPoint();
+                    
+
                 }
 
             }
@@ -435,8 +551,10 @@ namespace Simple_Paint
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
+                    Caretaker.add(new Memento(history));
                     curShape.stroke.borderColor = borderColorMain.Clone();
                     curShape.UpdateStartAndEndPoint();
+                    
                 }
             }
         }

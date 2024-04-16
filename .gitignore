@@ -190,5 +190,8 @@ git_stats/*
 
 *.ncrunchproject
 StyleCop.Cache
-bin
-obj
+/Simple_Paint/obj/
+/Simple_Paint/bin/
+/Simple_Paint/obj
+/Simple_Paint/obj
+/Simple_Paint/bin

@@ -4,8 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
@@ -58,8 +60,6 @@ namespace Simple_Paint
         }
         
 
-
-
         public static Canvas canvas;
 
         public Point StartPoint { get; set; }
@@ -67,18 +67,136 @@ namespace Simple_Paint
 
         public Stroke stroke;
         public Stroke old;
-        public ShapeToDraw(ShapeToDraw shapeToDraw)
+
+        public RectangleShape borderSelected = null;
+        public ShapeToDraw(ShapeToDraw shapeToDraw) : this(shapeToDraw.StartPoint, shapeToDraw.EndPoint)
         {
-            this.StartPoint = shapeToDraw.StartPoint;
-            this.EndPoint = shapeToDraw.EndPoint;
-            this.stroke = shapeToDraw.stroke;
+            if (shapeToDraw.stroke != null)
+            {
+                this.stroke = shapeToDraw.stroke.Clone();
+            }
         }
 
         public ShapeToDraw(Point startPoint, Point endPoint) 
         {
-            StartPoint = startPoint;
-            EndPoint = endPoint;
+            double left = Math.Min(startPoint.X, endPoint.X);
+            double top = Math.Min(startPoint.Y, endPoint.Y);
+            double right = Math.Max(startPoint.X, endPoint.X);
+            double bottom = Math.Max(startPoint.Y, endPoint.Y);
+
+            // Tạo điểm góc trái trên và góc phải dưới mới
+            StartPoint = new Point(left, top);
+            EndPoint = new Point(right, bottom);
         }
+
+        public void CreateBorderSelected()
+        {
+            if (borderSelected == null)
+            {
+                borderSelected = (RectangleShape)FactoryShape.CreateShape("Rectangle", "Dash", Brushes.Black, 1, null);
+                borderSelected.StartPoint = this.StartPoint;
+                borderSelected.EndPoint = this.EndPoint;
+                borderSelected.Draw();
+            }
+        }
+        public void RemoveBorderSelected()
+        {
+            if (borderSelected != null)
+            {
+                borderSelected.Remove();
+                borderSelected = null;
+            }
+        }
+
+        int changingState = 0;
+        public int IsInBorderRectangle(Point point)
+        {
+            changingState = 0;
+            // Vertical
+            if (point.X >= borderSelected.StartPoint.X - 5 && point.X <= borderSelected.StartPoint.X + 5)
+            {
+                if (point.Y >= borderSelected.StartPoint.Y && point.Y <= borderSelected.EndPoint.Y)
+                {
+                    // Change cusor to resize vertical cursor 
+                    canvas.Cursor = Cursors.SizeWE;
+                    changingState = 1;
+
+
+
+
+                }
+            }
+            else if (point.X >= borderSelected.EndPoint.X - 5 && point.X <= borderSelected.EndPoint.X + 5)
+            {
+                if (point.Y >= borderSelected.StartPoint.Y && point.Y <= borderSelected.EndPoint.Y)
+                {
+                    // Change cusor to resize vertical cursor
+                    canvas.Cursor = Cursors.SizeWE;
+                    changingState = 3;
+                }
+            }
+            // Horizontal
+            else if (point.Y >= borderSelected.StartPoint.Y - 5 && point.Y <= borderSelected.StartPoint.Y + 5)
+            {
+                if (point.X >= borderSelected.StartPoint.X && point.X <= borderSelected.EndPoint.X)
+                {
+                    // Change cusor to resize horizontal cursor
+                    canvas.Cursor = Cursors.SizeNS;
+                    changingState = 2;
+
+                }
+            }
+            else if (point.Y >= borderSelected.EndPoint.Y - 5 && point.Y <= borderSelected.EndPoint.Y + 5)
+            {
+                if (point.X >= borderSelected.StartPoint.X && point.X <= borderSelected.EndPoint.X)
+                {
+                    // Change cusor to resize horizontal cursor
+                    canvas.Cursor = Cursors.SizeNS;
+                    changingState = 4;
+
+                }
+            }
+
+            // Change cusor to move cursor
+            if (changingState == 0)
+            {
+                canvas.Cursor = Cursors.Hand;
+            }
+            // Resize of shape
+
+
+
+
+
+            return changingState;
+
+        }
+
+        public void ResizeShape(Point point)
+        {
+
+            if(changingState ==1)
+            {
+                    StartPoint = new Point(point.X, StartPoint.Y);
+                    UpdateStartAndEndPoint();
+            }
+            else if(changingState == 2)
+            {
+                    StartPoint = new Point(StartPoint.X, point.Y);
+                    UpdateStartAndEndPoint();
+            }
+            else if(changingState == 3)
+            {
+                    EndPoint = new Point(point.X, EndPoint.Y);
+                    UpdateStartAndEndPoint();
+            }
+            else if(changingState == 4)
+            {
+                    EndPoint = new Point(EndPoint.X, point.Y);
+                    UpdateStartAndEndPoint();
+            }
+        }
+
         public bool IsPointInShape(Point point)
         {
             // Tính toán lại để đảm bảo đúng cặp điểm góc trái trên và góc phải dưới
@@ -89,7 +207,6 @@ namespace Simple_Paint
 
             // Tạo điểm góc trái trên và góc phải dưới mới
             Point newTopLeft = new Point(left, top);
-
             Point newBottomRight = new Point(right, bottom);
 
             if(point.X >= newTopLeft.X && point.X <= newBottomRight.X && point.Y >= newTopLeft.Y && point.Y <= newBottomRight.Y)
@@ -173,7 +290,12 @@ namespace Simple_Paint
         }
         virtual public void UpdateStartAndEndPoint()
         {
-
+            if (borderSelected != null)
+            {
+                borderSelected.StartPoint = this.StartPoint;
+                borderSelected.EndPoint = this.EndPoint;
+                borderSelected.UpdateStartAndEndPoint();
+            }
         }
 
     }
@@ -232,11 +354,12 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
             line.Stroke = this.stroke.borderColor;
             line.StrokeThickness = this.stroke.thickness;
             line.StrokeDashArray = this.stroke.strokeDashArray;
 
-
+            
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
@@ -303,10 +426,14 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
             ellipse.Stroke = this.stroke.borderColor;
             ellipse.StrokeThickness = this.stroke.thickness;
             ellipse.StrokeDashArray = this.stroke.strokeDashArray;
             ellipse.Fill = this.stroke.fillColor;
+
+            ellipse.Width = Math.Abs(EndPoint.X - StartPoint.X);
+            ellipse.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
 
             if (EndPoint.X < StartPoint.X)
             {
@@ -327,7 +454,7 @@ namespace Simple_Paint
         }
     }
 
-    class RectangleShape : ShapeToDraw
+    public class RectangleShape : ShapeToDraw
     {
         public Rectangle rectangle;
         public RectangleShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
@@ -414,6 +541,9 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
+            rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
+            rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
             rectangle.Stroke = this.stroke.borderColor;
             rectangle.StrokeThickness = this.stroke.thickness;
             rectangle.StrokeDashArray = this.stroke.strokeDashArray;
@@ -508,6 +638,7 @@ namespace Simple_Paint
 
         public void UpdateEndPointLandscapeOrientation()
         {
+            base.UpdateStartAndEndPoint();
 
 
             p1.X = StartPoint.X;
@@ -528,6 +659,8 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
+
 
             triangle.Stroke = this.stroke.borderColor;
             triangle.StrokeThickness = this.stroke.thickness;
@@ -640,6 +773,8 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
+
             triangle1.stroke = this.stroke;
             triangle2.stroke = this.stroke;
             line1.stroke = this.stroke;
@@ -742,6 +877,7 @@ namespace Simple_Paint
             rectangle.dragStartPoint = this.dragStartPoint;
             rectangle.curDragPoint = this.curDragPoint;
             rectangle.Drag(curDragPoint)*/
+            base.UpdateStartAndEndPoint();
 
             rectangle.stroke = this.stroke;
             triangle.stroke = this.stroke;
@@ -805,6 +941,7 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
 
             rectangle.stroke = this.stroke;
             triangle.stroke = this.stroke;
@@ -885,6 +1022,8 @@ namespace Simple_Paint
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint();
+
             triangle1.stroke = this.stroke;
             triangle2.stroke = this.stroke;
 

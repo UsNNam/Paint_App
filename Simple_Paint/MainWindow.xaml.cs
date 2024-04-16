@@ -34,6 +34,7 @@ namespace Simple_Paint
         public const int ISSELECT = 1;
         public const int ISSELECTELEMENT = 2;
         public const int ISDRAGELEMENT = 3;
+        public const int ISRESIZE = 4;
 
 
 
@@ -222,17 +223,52 @@ namespace Simple_Paint
             shapeType = "Collate";
         }
 
+        private void Canvas_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Point bottomRight = e.GetPosition(canvas);
+            if (bottomRight.Equals(topLeft))
+            {
+                curShape = null;
+                curShape = GetShapeChoosen(bottomRight);
+
+                if (curShape != null)
+                {
+                    code = ISSELECTELEMENT;
+                }
+
+            }
+        }
+        private void updateHistory()
+        {
+            for (int i = 0; i < history.Count; i++)
+            {
+                history[i].UpdateStartAndEndPoint();
+            }
+        }
+        private ShapeToDraw GetShapeChoosen(Point point)
+        {
+            for (int i = history.Count - 1; i >= 0; i--)
+            {
+                if (history[i].IsPointInShape(point))
+                {
+                    return history[i];
+                }
+            }
+            return null;
+        }
+
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // Check if it is a double click
-            if (e.ClickCount == 2)
+            bool isDoubleClick = false;
+            if (e.ClickCount == 2 && code != ISSELECTELEMENT)
             {
                 // Handle double-click event here
                 Canvas_DoubleClick(sender, e);
-                return;
+                isDoubleClick = true;
             }
 
-            if (e.LeftButton == MouseButtonState.Pressed && isDraw == false)
+            if ((e.LeftButton == MouseButtonState.Pressed && isDraw == false)||(isDoubleClick))
             {
                 Point point = e.GetPosition(canvas);
                 topLeft = point;
@@ -244,7 +280,6 @@ namespace Simple_Paint
                             curShape = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain);
                             curShape.StartPoint = new Point(point.X, point.Y);
                             curShape.EndPoint = new Point(point.X, point.Y);
-                            history.Add(curShape);
                             curShape.Draw();
                             isDraw = true;
                         }
@@ -257,53 +292,39 @@ namespace Simple_Paint
                         isDraw = true;
                         break;
                     case ISSELECTELEMENT:
-                        code = ISDRAGELEMENT;
-                        if(!curShape.StartDrag(point))
+                        code = NORMAL;
+
+                        if (curShape != null)
                         {
-                            code = NORMAL;
+                            curShape.CreateBorderSelected();
+
+                            if (curShape.IsInBorderRectangle(point) != 0)
+                            {
+
+                                code = ISRESIZE;
+                            }
+                            else if (curShape.StartDrag(point))
+                            {
+
+                                code = ISDRAGELEMENT;
+                            }
+                            else
+                            {
+                                curShape.RemoveBorderSelected();
+                                curShape = null;
+                            }
                         }
                         break;
                 }
 
             }
         }
-        private void Canvas_DoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            Point bottomRight = e.GetPosition(canvas);
-            if (bottomRight.Equals(topLeft))
-            {
-                curShape = null;
-                curShape = GetShapeChoosen(bottomRight);
-
-                if (curShape != null)
-                {
-                    code = ISDRAGELEMENT;
-                }
-
-            }
-        }
-        private void updateHistory()
-        {
-            for(int i = 0; i < history.Count; i++)
-            {
-                history[i].UpdateStartAndEndPoint();
-            }
-        }
-        private ShapeToDraw GetShapeChoosen(Point point)
-        {
-            for(int i = history.Count-1; i >=0;i--)
-            {
-                if (history[i].IsPointInShape(point))
-                {
-                    return history[i];
-                }
-            }
-            return null;
-        }
+        
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Released )
+            Point curPoint = e.GetPosition(canvas);
+            if (e.LeftButton == MouseButtonState.Released )
             {
                 if (isDraw)
                 {
@@ -311,15 +332,23 @@ namespace Simple_Paint
                     bottomRight= e.GetPosition(canvas);
                     {
                         curShape.EndPoint = e.GetPosition(canvas);
+                        if (curShape.StartPoint != curShape.EndPoint)
+                        {
+                            history.Add(curShape);
+                            curShape.UpdateEndPoint();
+                        }
                     }
                     isDraw = false;
                 }
                 
-                if(code == ISDRAGELEMENT)
+                if(code == ISDRAGELEMENT || code == ISRESIZE)
                 {
                     code = ISSELECTELEMENT;
                 }
+
             }
+            canvas.Cursor = Cursors.Arrow;
+
         }
 
 
@@ -348,10 +377,7 @@ namespace Simple_Paint
 
                         curShape.EndPoint = endPoint;
                         curShape.UpdateEndPoint();
-
-
                     }
-
                 }
                 else
                 {
@@ -362,6 +388,10 @@ namespace Simple_Paint
             if(code == ISDRAGELEMENT)
             {
                 curShape.Drag(curPoint);
+            }
+            if(code == ISRESIZE)
+            {
+                curShape.ResizeShape(curPoint);
             }
         }
         private void clearRectangale()

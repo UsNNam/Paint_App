@@ -329,7 +329,6 @@
             <ComboBox
                 Name="SizeCombobox"
                 Width="100"
-                SelectionChanged="ThicknessComboBox_SelectionChanged"
                 VerticalAlignment="Center"
                 Style="{StaticResource ComboBoxStyle}">
                 <ComboBoxItem Content="8" Style="{StaticResource ComboBoxItemStyle}" />
@@ -342,7 +341,6 @@
             <ComboBox
                 Name="FontFamilyCombobox"
                 Width="100"
-                SelectionChanged="ThicknessComboBox_SelectionChanged"
                 VerticalAlignment="Center"
                 Style="{StaticResource ComboBoxStyle}">
                 <ComboBoxItem Content="Arial" Style="{StaticResource ComboBoxItemStyle}" />

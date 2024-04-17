@@ -425,6 +425,8 @@ namespace Simple_Paint
                 }
 
                 curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
+                Caretaker.add(new Memento(history));
+
             }
         }
 

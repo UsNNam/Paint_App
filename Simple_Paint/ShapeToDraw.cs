@@ -687,6 +687,7 @@ namespace Simple_Paint
             points[1] = p2;
             points[2] = p3;
             //triangle.Points = points;
+            base.UpdateStartAndEndPoint();
         }
 
     }
@@ -818,6 +819,8 @@ namespace Simple_Paint
             line3.UpdateStartAndEndPoint();
             triangle1.UpdateStartAndEndPoint();
             triangle2.UpdateStartAndEndPoint();
+
+            base.UpdateStartAndEndPoint();
         }
     }
 
@@ -920,6 +923,8 @@ namespace Simple_Paint
             rectangle.UpdateStartAndEndPoint();
             line.UpdateStartAndEndPoint();
 
+            base.UpdateStartAndEndPoint();
+
         }
     }
 
@@ -983,6 +988,8 @@ namespace Simple_Paint
 
             rectangle.UpdateStartAndEndPoint();
             line.UpdateStartAndEndPoint();
+
+            base.UpdateStartAndEndPoint();
         }
     }
 
@@ -1055,6 +1062,8 @@ namespace Simple_Paint
             triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
             triangle2.EndPoint = EndPoint;
             triangle2.UpdateStartAndEndPoint();
+
+            base.UpdateStartAndEndPoint();
         }
     }
 

@@ -4,8 +4,12 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using Microsoft.Win32;
+
 using System.Windows.Media.Imaging;
-using Wpf.Ui.Interop.WinDef;
+
+using Microsoft.Win32;
+
 
 namespace Simple_Paint
 {
@@ -40,13 +44,149 @@ namespace Simple_Paint
         public const int ISRESIZE = 4;
 
 
-
         public MainWindow()
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
             Caretaker.add(new Memento(history));
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
+        }
+
+        private void SaveSolidColorBrush(BinaryWriter writer, SolidColorBrush brush)
+        {
+            if (brush == null)
+            {
+                // Ghi một byte 0 để biểu thị rằng brush là null
+                writer.Write((byte)0);
+                return;
+            }
+            // Ghi một byte 1 để biểu thị rằng brush không phải là null
+            writer.Write((byte)1);
+            Color color = brush.Color;
+            writer.Write(color.A);
+            writer.Write(color.R);
+            writer.Write(color.G);
+            writer.Write(color.B);
+        }
+
+        private SolidColorBrush LoadSolidColorBrush(BinaryReader reader)
+        {
+            byte indicator = reader.ReadByte();
+            if (indicator == 0)
+            {
+                // Nếu byte đầu tiên là 0, brush là null
+                return null;
+            }
+            // Nếu không, đọc giá trị màu
+            byte a = reader.ReadByte();
+            byte r = reader.ReadByte();
+            byte g = reader.ReadByte();
+            byte b = reader.ReadByte();
+
+            Color color = Color.FromArgb(a, r, g, b);
+            return new SolidColorBrush(color);
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Directory.GetCurrentDirectory() + "\\Saved Game";
+            saveFileDialog.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                SaveShapes(history, saveFileDialog.FileName);
+            }
+        }
+
+
+        private void SaveShapes(List<ShapeToDraw> shapes, string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.Create))
+            using (BinaryWriter writer = new BinaryWriter(fs))
+            {
+                writer.Write(shapes.Count);
+                foreach (ShapeToDraw shape in shapes)
+                {
+                    writer.Write(shape.GetShapeType());
+                    writer.Write(shape.StartPoint.X);
+                    writer.Write(shape.StartPoint.Y);
+                    writer.Write(shape.EndPoint.X);
+                    writer.Write(shape.EndPoint.Y);
+                    writer.Write(shape.curAngle);
+
+                    writer.Write(shape.stroke.GetStrokeType());
+                    writer.Write(shape.stroke.thickness);
+                    SaveSolidColorBrush(writer, shape.stroke.fillColor);
+                    SaveSolidColorBrush(writer, shape.stroke.borderColor);
+
+                }
+            }
+        }
+
+
+
+
+        private void btnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Directory.GetCurrentDirectory() + "\\Saved Game";
+            openFileDialog.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*.*";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                history = LoadShapes(openFileDialog.FileName);
+                // Cập nhật UI hoặc canvas dựa trên các hình đã tải
+            }
+        }
+
+
+        private List<ShapeToDraw> LoadShapes(string fileName)
+        {
+            List<ShapeToDraw> shapes = new List<ShapeToDraw>();
+
+            using (FileStream fs = new FileStream(fileName, FileMode.Open))
+            using (BinaryReader reader = new BinaryReader(fs))
+            {
+                int count = reader.ReadInt32();
+                for (int i = 0; i < count; i++)
+                {
+                    string shapeType = reader.ReadString();
+                    double startX = reader.ReadDouble();
+                    double startY = reader.ReadDouble();
+                    double endX = reader.ReadDouble();
+                    double endY = reader.ReadDouble();
+                    double curAngle = reader.ReadDouble();
+
+                    string strokeType = reader.ReadString();
+                    double thickness = reader.ReadDouble();
+                    SolidColorBrush fillColor = LoadSolidColorBrush(reader);
+                    SolidColorBrush borderColor = LoadSolidColorBrush(reader);
+
+                    ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
+                    shape.StartPoint = new Point(startX, startY);
+                    shape.EndPoint = new Point(endX, endY);
+                    shape.Rotate(curAngle);
+                    shape.Draw();
+
+                    shapes.Add(shape);
+                }
+            }
+
+            return shapes;
+        }
+
+
+
+
+
+
+
+
+        private void Rotate_Button(object sender, RoutedEventArgs e)
+        {
+            // Thêm code để xử lý sự kiện khi nút được nhấn
+            curShape.Rotate(45);
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -389,7 +529,6 @@ namespace Simple_Paint
                     if (bottomRight.Equals(topLeft))
                     {
                         curShape = null;
-                        history.Remove(history[history.Count - 1]);
                         curShape = GetShapeChoosen(bottomRight);
                    /*     Stroke old = newcurShape.stroke;
                         curShape.stroke = new SolidStroke(Brushes.White, 3, Brushes.White);
@@ -401,7 +540,6 @@ namespace Simple_Paint
                         {
                             code = ISSELECTELEMENT;
                         }
-
 
                     }
                     else

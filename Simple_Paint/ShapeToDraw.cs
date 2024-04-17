@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -15,10 +16,11 @@ using System.Windows.Shapes;
 
 namespace Simple_Paint
 {
+    [Serializable]
     public class ShapeToDraw
     {
         public static List<ShapeToDraw> prototypes = new List<ShapeToDraw>();
-
+        public static int rotateAngle = 45;
         static ShapeToDraw(){
                    prototypes.Add(new LineShape(new Point(0, 0), new Point(0, 0)));
                    prototypes.Add(new EllipseShape(new Point(0, 0), new Point(0, 0)));
@@ -63,6 +65,8 @@ namespace Simple_Paint
         
 
         public static Canvas canvas;
+
+        public double curAngle = 0;
 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
@@ -154,6 +158,7 @@ namespace Simple_Paint
                 borderSelected.StartPoint = this.StartPoint;
                 borderSelected.EndPoint = this.EndPoint;
                 borderSelected.Draw();
+                borderSelected.Rotate(curAngle);
             }
         }
         public void RemoveBorderSelected()
@@ -292,7 +297,6 @@ namespace Simple_Paint
             }
             textBox = FactoryWord.CreateTextBox(backgroundColor, fontsize, color, fontFamily);
 
-
             updateTextBoxPosition();
 
             textBox.TextChanged += (sender, e) =>
@@ -348,15 +352,29 @@ namespace Simple_Paint
                 canvas.Children.Remove(textBox);
             }
         }   
+
         virtual public string GetShapeType()
         {
             return "";
         }
+
         virtual public ShapeToDraw Clone()
         {
             return (ShapeToDraw)this.MemberwiseClone();
         }
 
+        virtual public void Rotate(double angle)
+        {
+
+        }
+
+        protected void RotateSelectedBorder()
+        {
+            if (borderSelected != null)
+            {
+                borderSelected.Rotate(rotateAngle);
+            }
+        }
 
         public bool isDragging;
         public Point dragStartPoint;
@@ -429,6 +447,7 @@ namespace Simple_Paint
 
     }
 
+    [Serializable]
     class LineShape : ShapeToDraw
     {
         public Line line;
@@ -486,19 +505,44 @@ namespace Simple_Paint
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
-            line.Stroke = this.stroke.borderColor;
-            line.StrokeThickness = this.stroke.thickness;
-            line.StrokeDashArray = this.stroke.strokeDashArray;
-
+            if (stroke != null)
+            {
+                line.Stroke = this.stroke.borderColor;
+                line.StrokeThickness = this.stroke.thickness;
+                line.StrokeDashArray = this.stroke.strokeDashArray;
+            }
             
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
             line.Y2 = EndPoint.Y;
         }
+        public override void Rotate(double angle)
+        {
+            base.Rotate(angle);
+            Point center = new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
+            // Tính toán góc xoay ở dạng radian
+            double radians = angle * Math.PI / 180;
+
+            // Tính toán tọa độ mới cho StartPoint
+            double newX1 = Math.Cos(radians) * (StartPoint.X - center.X) - Math.Sin(radians) * (StartPoint.Y - center.Y) + center.X;
+            double newY1 = Math.Sin(radians) * (StartPoint.X - center.X) + Math.Cos(radians) * (StartPoint.Y - center.Y) + center.Y;
+
+            // Tính toán tọa độ mới cho EndPoint
+            double newX2 = Math.Cos(radians) * (EndPoint.X - center.X) - Math.Sin(radians) * (EndPoint.Y - center.Y) + center.X;
+            double newY2 = Math.Sin(radians) * (EndPoint.X - center.X) + Math.Cos(radians) * (EndPoint.Y - center.Y) + center.Y;
+
+            // Áp dụng tọa độ mới
+            StartPoint = new Point(newX1, newY1);
+            EndPoint = new Point(newX2, newY2);
+
+            // Cập nhật đường thẳng trong canvas
+            UpdateStartAndEndPoint();
+        }
 
     }
 
+    [Serializable]
     class EllipseShape : ShapeToDraw
     {
         Ellipse ellipse;
@@ -560,10 +604,13 @@ namespace Simple_Paint
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
-            ellipse.Stroke = this.stroke.borderColor;
-            ellipse.StrokeThickness = this.stroke.thickness;
-            ellipse.StrokeDashArray = this.stroke.strokeDashArray;
-            ellipse.Fill = this.stroke.fillColor;
+            if (stroke != null)
+            {
+                ellipse.Stroke = this.stroke.borderColor;
+                ellipse.StrokeThickness = this.stroke.thickness;
+                ellipse.StrokeDashArray = this.stroke.strokeDashArray;
+                ellipse.Fill = this.stroke.fillColor;
+            }
 
             ellipse.Width = Math.Abs(EndPoint.X - StartPoint.X);
             ellipse.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
@@ -585,8 +632,20 @@ namespace Simple_Paint
                 Canvas.SetTop(ellipse, StartPoint.Y);
             }
         }
+        public override void Rotate(double angle)
+        {
+            curAngle += angle;
+            base.RotateSelectedBorder();
+            // Đặt điểm tâm xoay tại tâm của ellipse
+            ellipse.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            // Tạo và áp dụng RotateTransform
+            RotateTransform rotateTransform = new RotateTransform(curAngle);
+            ellipse.RenderTransform = rotateTransform;
+        }
     }
 
+    [Serializable]
     public class RectangleShape : ShapeToDraw
     {
         public Rectangle rectangle;
@@ -630,6 +689,18 @@ namespace Simple_Paint
         public override ShapeToDraw Clone()
         {
             return new RectangleShape(this);
+        }
+        public override void Rotate(double angle)
+        {
+            curAngle+= (int)angle;
+            base.RotateSelectedBorder();
+
+            // Đặt điểm tâm xoay tại tâm của hình chữ nhật
+            rectangle.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            // Tạo và áp dụng RotateTransform
+            RotateTransform rotateTransform = new RotateTransform(curAngle);
+            rectangle.RenderTransform = rotateTransform;
         }
         public override void UpdateEndPoint()
         {
@@ -680,10 +751,14 @@ namespace Simple_Paint
             base.UpdateStartAndEndPoint();
             rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
             rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
-            rectangle.Stroke = this.stroke.borderColor;
-            rectangle.StrokeThickness = this.stroke.thickness;
-            rectangle.StrokeDashArray = this.stroke.strokeDashArray;
-            rectangle.Fill = this.stroke.fillColor;
+
+            if (stroke != null)
+            {
+                rectangle.Stroke = this.stroke.borderColor;
+                rectangle.StrokeThickness = this.stroke.thickness;
+                rectangle.StrokeDashArray = this.stroke.strokeDashArray;
+                rectangle.Fill = this.stroke.fillColor;
+            }
             if(EndPoint.X < StartPoint.X)
             {
                 Canvas.SetLeft(this.rectangle, EndPoint.X);
@@ -703,6 +778,7 @@ namespace Simple_Paint
         }
     }
 
+    [Serializable]
     class TriangleShape : ShapeToDraw
     {
         Polygon triangle;
@@ -724,6 +800,24 @@ namespace Simple_Paint
             points.Add(p1);
             points.Add(p2);
             points.Add(p3);
+        }
+        public override void Rotate(double angle)
+        {
+            curAngle += angle;
+            base.RotateSelectedBorder();
+            // Tính tâm của tam giác để đặt điểm xoay
+            /*double centerX = (p1.X + p2.X + p3.X) / 3;
+            double centerY = (p1.Y + p2.Y + p3.Y) / 3;
+*/
+            double centerX = (StartPoint.X + EndPoint.X) / 2;
+            double centerY = (StartPoint.Y + EndPoint.Y) / 2;
+
+            // Đặt điểm tâm xoay
+            triangle.RenderTransformOrigin = new Point(0, 0);
+
+            // Tạo và áp dụng RotateTransform
+            RotateTransform rotateTransform = new RotateTransform(curAngle, centerX, centerY);
+            triangle.RenderTransform = rotateTransform;
         }
         public override string GetShapeType()
         {
@@ -747,11 +841,13 @@ namespace Simple_Paint
             {
                 EndPoint = StartPoint;
             }
-            triangle.Stroke = this.stroke.borderColor;
-            triangle.StrokeThickness = this.stroke.thickness;
-            triangle.StrokeDashArray = this.stroke.strokeDashArray;
-            triangle.Fill = this.stroke.fillColor;
-
+            if (stroke != null)
+            {
+                triangle.Stroke = this.stroke.borderColor;
+                triangle.StrokeThickness = this.stroke.thickness;
+                triangle.StrokeDashArray = this.stroke.strokeDashArray;
+                triangle.Fill = this.stroke.fillColor;
+            }
             p1 = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 2, StartPoint.Y);
             p2 = new Point(StartPoint.X, EndPoint.Y);
             p3 = new Point(EndPoint.X, EndPoint.Y);
@@ -819,6 +915,7 @@ namespace Simple_Paint
 
     }
 
+    [Serializable]
     class StarShape : ShapeToDraw
     {
         TriangleShape triangle1, triangle2;
@@ -933,6 +1030,9 @@ namespace Simple_Paint
             triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
             triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
+
+
+
             line1.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             line1.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
 
@@ -949,8 +1049,26 @@ namespace Simple_Paint
             triangle1.UpdateStartAndEndPoint();
             triangle2.UpdateStartAndEndPoint();
         }
+        private Point CalculateCenter()
+        {
+            return new Point((StartPoint.X + EndPoint.X) / 2, (StartPoint.Y + EndPoint.Y) / 2);
+        }
+        public override void Rotate(double angle)
+        {
+            curAngle += angle;
+            base.RotateSelectedBorder();
+            Point center = CalculateCenter();
+            RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
+
+            triangle1.Rotate(curAngle);
+            triangle2.Rotate(curAngle);
+            line1.Rotate(angle);
+            line2.Rotate(angle);
+            line3.Rotate(angle);
+        }
     }
 
+    [Serializable]
     class ArrowShape : ShapeToDraw {
         public RectangleShape rectangle;
         public TriangleShape triangle;
@@ -1054,6 +1172,7 @@ namespace Simple_Paint
         }
     }
 
+    [Serializable]
     class PentagonArrowShape : ArrowShape
     {
         public PentagonArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
@@ -1118,6 +1237,7 @@ namespace Simple_Paint
         }
     }
 
+    [Serializable]
     class CollateShape : ShapeToDraw
     {
         TriangleShape triangle1, triangle2;

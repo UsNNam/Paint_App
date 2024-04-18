@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -9,7 +9,10 @@ using Microsoft.Win32;
 using System.Windows.Media.Imaging;
 
 using Microsoft.Win32;
-
+using Shapes;
+using MyStroke;
+using System.Reflection;
+using System.Windows.Shapes;
 
 namespace Simple_Paint
 {
@@ -24,8 +27,21 @@ namespace Simple_Paint
         public static SolidColorBrush fillColorMain = null;
         public static SolidColorBrush borderColorMain = Brushes.Black;
         public static double thickness = 1;
-        public static Stroke stroke = new SolidStroke(Brushes.Black, 1,null);
+        //public static Stroke stroke = new SolidStroke(Brushes.Black, 1, null);
         public static string typeOfStroke = "Solid";
+
+
+        public static List<Stroke> baseStrokes = new List<Stroke>();
+        public static List<ShapeToDraw> baseShapes = new List<ShapeToDraw>();
+        
+        static MainWindow(){
+            baseStrokes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, null));
+            baseStrokes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, null));
+
+            baseShapes.Add(new LineShape(new Point(0, 0), new Point(0, 0)));
+            baseShapes.Add(new RectangleShape(new Point(0, 0), new Point(0, 0)));
+        }
+
 
         public static Point topLeft = new Point(0, 0);
         public static Point bottomRight = new Point(0, 0);
@@ -36,7 +52,7 @@ namespace Simple_Paint
         public static string shapeType = "Line";
         public static ShapeToDraw copyShape = null;
         public static int copyCutState = 0;
-
+        public static int isSelectArea = 0;
         public static int code = 0;
         
         public const int NORMAL = 0;
@@ -53,6 +69,9 @@ namespace Simple_Paint
             Caretaker.add(new Memento(history));
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
             layers.Add(new LayerShape());
+           
+            // Sửa chỗ này
+            // curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
 
         private void SaveSolidColorBrush(BinaryWriter writer, SolidColorBrush brush)
@@ -200,13 +219,13 @@ namespace Simple_Paint
             CheckBox checkBox = (CheckBox)sender;
             int index = LayerPanel.Children.IndexOf(checkBox);
 
-/*            if (numberLayerChecked() == 2)
+            if (numberLayerChecked() == 2)
             {
                 if (curLayer != -1)
                 {
                     layers[curLayer].shapeToDraws = new List<ShapeToDraw>(history);
                 }
-            }*/
+            }
 
             if (numberLayerChecked() == 1)
             {
@@ -246,6 +265,7 @@ namespace Simple_Paint
                     shape.Remove();
                 }
                 history.Clear();
+                return;
             }
 
             if (numberLayerChecked() == 1)
@@ -492,47 +512,211 @@ namespace Simple_Paint
                 }
             }
         }
-
-
-        private void LineButton_Click(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            shapeType = "Line";
-
-        }
-        private void EllipseButton_Click(object sender, RoutedEventArgs e)
-        {
-            shapeType = "Ellipse";
-
-        }
-        private void RectangleButton_Click(object sender, RoutedEventArgs e)
-        {
-            shapeType = "Rectangle";
+            injectInternalDLL();
         }
 
-        private void TriangleButton_Click(object sender, RoutedEventArgs e)
+        private void Shape_Click(object sender, RoutedEventArgs e)
         {
-            shapeType = "Triangle";
+            ShapeToDraw item = (ShapeToDraw)(sender as Button)!.Tag;
+            shapeType = item.GetShapeType();
+        }
+        private void btnExtend_Click(object sender, RoutedEventArgs e)
+        {
+            injectInternalDLL();
         }
 
-        private void StarButton_Click(object sender, RoutedEventArgs e)
+        private void injectInternalDLL()
         {
-            shapeType = "Star";
+            injectShapeInternalDLL();
+            injectStrokeInternalDLL();
         }
 
-        private void ArrowButton_Click(object sender, RoutedEventArgs e)
+        private void injectShapeInternalDLL()
         {
-            shapeType = "Arrow";
-        }
-        
-        private void ArrowPentagonButton_Click(object sender, RoutedEventArgs e)
-        {
-            shapeType = "ArrowPentagon";
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            // Xây dựng đường dẫn đến thư mục /Shapes
+            string shapesDirectoryPath = System.IO.Path.Combine(baseDirectory, "Shapes");
+
+            // Kiểm tra xem thư mục /Shapes có tồn tại không
+            if (!Directory.Exists(shapesDirectoryPath))
+            {
+                // Nếu không tồn tại, tạo mới thư mục đó
+                Directory.CreateDirectory(shapesDirectoryPath);
+                Console.WriteLine("Created new directory: " + shapesDirectoryPath);
+            }
+
+            var fis = new DirectoryInfo(shapesDirectoryPath).GetFiles("*.dll");
+
+            ShapeToDraw.prototypes = new List<ShapeToDraw>();
+
+            foreach(ShapeToDraw shape in baseShapes)
+            {
+                ShapeToDraw.prototypes.Add(shape.Clone());
+            }
+
+            foreach (var fi in fis)
+            {
+                // Lấy tất cả kiểu dữ liệu trong dll
+                var assembly = Assembly.LoadFrom(fi.FullName);
+                var types = assembly.GetTypes();
+
+                foreach (var type in types)
+                {
+                    if (typeof(ShapeToDraw).IsAssignableFrom(type) && !type.IsAbstract)
+                    {
+                        // Kiểm tra xem không phải là chính lớp ShapeToDraw nếu lớp này không được phép tạo trực tiếp
+                        if (type != typeof(ShapeToDraw))
+                        {
+                            try
+                            {
+                                // Tạo instance của type với các tham số constructor phù hợp
+                                var instance = (ShapeToDraw)Activator.CreateInstance(type, new object[] { new Point(0, 0), new Point(0, 0) });
+                                ShapeToDraw.prototypes.Add(instance);
+                                Console.WriteLine("Instance added successfully.");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error creating instance: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cannot create instance of ShapeToDraw directly.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Type is not a subclass of ShapeToDraw or is abstract.");
+                    }
+
+                }
+            }
+            // ---------------------------------------------------
+
+            // Tự tạo ra giao diện
+            // Clear all children of actions
+            actions.Children.Clear();
+
+
+            foreach (var item in ShapeToDraw.prototypes)
+            {
+                var control = new Button()
+                {
+                    Width = 80,
+                    Height = 30,
+                    
+                    BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FF969696"),
+                    Content = item.GetShapeType(),
+                    Style = (Style)Application.Current.Resources["CustomShapeButtonStyle"],
+                    Tag = item,
+                    Margin = new Thickness(1) // Thiết lập Margin là 5 cho tất cả các hướng
+
+                };
+                control.Click += Shape_Click;
+                actions.Children.Add(control);
+            }
+            if (ShapeToDraw.prototypes.Count > 0)
+            {
+                curShape = ShapeToDraw.prototypes[0].Clone();
+            }
         }
 
-        private void CollateButton_Click(object sender, RoutedEventArgs e)
+
+        private void injectStrokeInternalDLL()
         {
-            shapeType = "Collate";
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            // Xây dựng đường dẫn đến thư mục /Shapes
+            string shapesDirectoryPath = System.IO.Path.Combine(baseDirectory, "Strokes");
+
+            // Kiểm tra xem thư mục /Shapes có tồn tại không
+            if (!Directory.Exists(shapesDirectoryPath))
+            {
+                // Nếu không tồn tại, tạo mới thư mục đó
+                Directory.CreateDirectory(shapesDirectoryPath);
+                Console.WriteLine("Created new directory: " + shapesDirectoryPath);
+            }
+
+            var fis = new DirectoryInfo(shapesDirectoryPath).GetFiles("*.dll");
+
+            Stroke.prototypes = new List<Stroke>();
+
+            foreach (Stroke shape in baseStrokes)
+            {
+                Stroke.prototypes.Add(shape.Clone());
+            }
+
+            foreach (var fi in fis)
+            {
+                // Lấy tất cả kiểu dữ liệu trong dll
+                var assembly = Assembly.LoadFrom(fi.FullName);
+                var types = assembly.GetTypes();
+
+                foreach (var type in types)
+                {
+                    if (typeof(Stroke).IsAssignableFrom(type) && !type.IsAbstract)
+                    {
+                        // Kiểm tra xem không phải là chính lớp ShapeToDraw nếu lớp này không được phép tạo trực tiếp
+                        if (type != typeof(Stroke))
+                        {
+                            try
+                            {
+                                // Tạo instance của type với các tham số constructor phù hợp
+                                object[] parameters = new object[]
+                                {
+                                    new SolidColorBrush(Colors.Black), // Tham số đầu tiên kiểu SolidColorBrush
+                                    1,                                  // Tham số thứ hai kiểu int
+                                    null                                // Tham số thứ ba có thể là null
+                                };
+
+                                var instance = (Stroke)Activator.CreateInstance(type, parameters);
+                                Stroke.prototypes.Add(instance);
+                                Console.WriteLine("Instance added successfully.");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error creating instance: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cannot create instance of ShapeToDraw directly.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Type is not a subclass of ShapeToDraw or is abstract.");
+                    }
+
+                }
+            }
+            // ---------------------------------------------------
+
+            // Tự tạo ra giao diện
+            // Clear all children of actions
+            BorderStyleComboBox.Items.Clear();
+
+            foreach (var item in Stroke.prototypes)
+            {
+                ComboBoxItem combox = new ComboBoxItem()
+                {
+                    Content = item.GetStrokeType(),
+                    Style = (Style)Resources["ComboBoxItemStyle"], // Áp dụng Style từ Resources
+                    Tag = item,
+                    Foreground = Brushes.Black,
+                };
+
+                BorderStyleComboBox.Items.Add(combox);
+            }
         }
+
+
+
+
+
+
+
 
         private void Canvas_DoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -578,6 +762,12 @@ namespace Simple_Paint
                 Canvas_DoubleClick(sender, e);
                 isDoubleClick = true;
             }
+            if (code == ISSELECT && isSelectArea == 1)
+            {
+                clearRectangale();
+                code = NORMAL;
+                isSelectArea = 0;
+            }
 
             // Check if the clicked element is not a TextBox or its child
             if (!(e.OriginalSource is TextBox))
@@ -595,10 +785,13 @@ namespace Simple_Paint
                         if (point != null)
                         {
                             curShape = FactoryShape.CreateShape(shapeType, typeOfStroke, borderColorMain, thickness, fillColorMain);
-                            curShape.StartPoint = new Point(point.X, point.Y);
-                            curShape.EndPoint = new Point(point.X, point.Y);
-                            curShape.Draw();
-                            isDraw = true;
+                            if (curShape != null)
+                            {
+                                curShape.StartPoint = new Point(point.X, point.Y);
+                                curShape.EndPoint = new Point(point.X, point.Y);
+                                curShape.Draw();
+                                isDraw = true;
+                            }
                         }
                         break;
                     case ISSELECT:
@@ -607,6 +800,7 @@ namespace Simple_Paint
                         curShape.EndPoint = new Point(point.X, point.Y);
                         curShape.Draw();
                         isDraw = true;
+                        isSelectArea = 1;
                         break;
                     case ISSELECTELEMENT:
                         code = NORMAL;
@@ -650,11 +844,11 @@ namespace Simple_Paint
                     {
                         curShape = null;
                         curShape = GetShapeChoosen(bottomRight);
-                   /*     Stroke old = newcurShape.stroke;
-                        curShape.stroke = new SolidStroke(Brushes.White, 3, Brushes.White);
-                        curShape.Draw();
-                        updateHistory();
-                        curShape.stroke = old;*/
+                        /*     Stroke old = newcurShape.stroke;
+                             curShape.stroke = new SolidStroke(Brushes.White, 3, Brushes.White);
+                             curShape.Draw();
+                             updateHistory();
+                             curShape.stroke = old;*/
 
                         if (curShape != null)
                         {
@@ -665,15 +859,20 @@ namespace Simple_Paint
                     else
                     {
                         curShape.EndPoint = e.GetPosition(canvas);
-                        if (curShape.StartPoint != curShape.EndPoint)
+                        if (curShape.StartPoint != curShape.EndPoint && code!= ISSELECT)
                         {
                             history.Add(curShape);
                             curShape.UpdateEndPoint();
                         }
-                        Caretaker.add(new Memento(history));
+                        if (code != ISSELECT)
+                        {
+                            Caretaker.add(new Memento(history));
+                        }
                     }
-                    
-                    isDraw = false;
+
+
+
+                        isDraw = false;
                 }
                 
                 if(code == ISDRAGELEMENT || code == ISRESIZE)
@@ -734,7 +933,6 @@ namespace Simple_Paint
 
                 if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                 {
-                    if (curShape is EllipseShape || curShape is RectangleShape)
                     {
                         // I want the endpoint make the shape into circle
 
@@ -771,6 +969,9 @@ namespace Simple_Paint
         {
             code = NORMAL;
             CopyToClipboardToggleButton.IsChecked = false;
+
+            //Can sửa
+
             curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
             curShape.UpdateStartAndEndPoint();

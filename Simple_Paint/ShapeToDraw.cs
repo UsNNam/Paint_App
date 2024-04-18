@@ -13,7 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-
+/*
 namespace Simple_Paint
 {
     [Serializable]
@@ -806,9 +806,9 @@ namespace Simple_Paint
             curAngle += angle;
             base.RotateSelectedBorder();
             // Tính tâm của tam giác để đặt điểm xoay
-            /*double centerX = (p1.X + p2.X + p3.X) / 3;
+            *//*double centerX = (p1.X + p2.X + p3.X) / 3;
             double centerY = (p1.Y + p2.Y + p3.Y) / 3;
-*/
+*//*
             double centerX = (StartPoint.X + EndPoint.X) / 2;
             double centerY = (StartPoint.Y + EndPoint.Y) / 2;
 
@@ -1144,12 +1144,12 @@ namespace Simple_Paint
         public override void UpdateStartAndEndPoint()
         {
 
-            /*rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+            *//*rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
             rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             rectangle.isDragging = this.isDragging;
             rectangle.dragStartPoint = this.dragStartPoint;
             rectangle.curDragPoint = this.curDragPoint;
-            rectangle.Drag(curDragPoint)*/
+            rectangle.Drag(curDragPoint)*//*
             base.UpdateStartAndEndPoint();
 
             rectangle.stroke = this.stroke;
@@ -1322,3 +1322,4 @@ namespace Simple_Paint
     }
 
 }
+*/

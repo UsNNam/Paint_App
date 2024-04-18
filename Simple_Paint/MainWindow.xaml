@@ -7,153 +7,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="MainWindow"
-    Width="1300"
+    Width="1500"
     Height="650"
     Background="White"
     MouseDoubleClick="Mouse_DoubleClick"
     PreviewKeyDown="MainWindow_KeyDown"
+    Loaded="Window_Loaded"
     mc:Ignorable="d">
+    
     <Window.Resources>
         <!--  Define a style for the button  -->
-        <Style x:Key="CustomButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#007ACC" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontFamily" Value="Segoe UI" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Padding" Value="10,5" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#005A8C" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#003F63" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Grid>
-                            <!--  Custom circle  -->
-                            <Ellipse
-                                Width="20"
-                                Height="20"
-                                Fill="Red" />
-                            <Ellipse
-                                x:Name="CheckedMark"
-                                Width="24"
-                                Height="24"
-                                Fill="Transparent"
-                                Stroke="Black"
-                                Visibility="Collapsed" />
-
-                            <!--  Content  -->
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <!--  Trigger to show checked mark when RadioButton is checked  -->
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="CheckedMark" Property="Visibility" Value="Visible" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        
     </Window.Resources>
     <DockPanel>
         <ToolBar
             Name="MyToolbar"
             Height="50"
             DockPanel.Dock="Top">
-            <RadioButton
-                Name="LineButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="LineButton_Click"
-                Content="Line"
-                GroupName="Shape"
-                IsChecked="True"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="EllipseButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="EllipseButton_Click"
-                Content="Ellipse"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="RectangleButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="RectangleButton_Click"
-                Content="Rectangle"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="TriangleButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="TriangleButton_Click"
-                Content="Triangle"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="StartButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="StarButton_Click"
-                Content="Star"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="ArrowButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="ArrowButton_Click"
-                Content="Arrow"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="ArrowPentagonButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="ArrowPentagonButton_Click"
-                Content="Pentagon"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
-            <RadioButton
-                Name="CollateButton"
-                Width="60"
-                Height="40"
-                BorderBrush="#FF969696"
-                Click="CollateButton_Click"
-                Content="Collate"
-                GroupName="Shape"
-                Style="{StaticResource ColorfulRadioButton}" />
+            <StackPanel Name="actions" Orientation="Horizontal">
+               <!-- <Button
+                    Name="LineButton"
+                    Width="60"
+                    Height="40"
+                    BorderBrush="#FF969696"
+                    Click="LineButton_Click"
+                    Content="Line"
+                    Style="{StaticResource CustomShapeButtonStyle}" />
+                -->
+                
+            </StackPanel>
+
 
             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                 <!--  FillColor and BorderColor RadioButtons  -->
@@ -178,10 +61,11 @@
                     Width="120"
                     SelectionChanged="BorderStyleComboBox_SelectionChanged"
                     Style="{StaticResource ComboBoxStyle}">
-                    <ComboBoxItem Content="Solid" Style="{StaticResource ComboBoxItemStyle}" />
+               <!--     <ComboBoxItem Content="Solid" Style="{StaticResource ComboBoxItemStyle}" />
                     <ComboBoxItem Content="Dash" Style="{StaticResource ComboBoxItemStyle}" />
                     <ComboBoxItem Content="Dot" Style="{StaticResource ComboBoxItemStyle}" />
                     <ComboBoxItem Content="DashDotDot" Style="{StaticResource ComboBoxItemStyle}" />
+                    -->
                 </ComboBox>
 
                 <Button
@@ -409,6 +293,15 @@
                 Content="Load"
                 Style="{StaticResource CustomButtonStyle}" />
 
+            <Button
+                Name="Extend"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="btnExtend_Click"
+                Content="Extend"
+                Style="{StaticResource CustomButtonStyle}" />
+
         </StackPanel>
         <Canvas
             x:Name="canvas"
@@ -424,3 +317,70 @@
         </Canvas>
     </DockPanel>
 </Window>
+
+
+
+    <!--
+<RadioButton
+    Name="EllipseButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="EllipseButton_Click"
+    Content="Ellipse"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="RectangleButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="RectangleButton_Click"
+    Content="Rectangle"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="TriangleButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="TriangleButton_Click"
+    Content="Triangle"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="StartButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="StarButton_Click"
+    Content="Star"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="ArrowButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="ArrowButton_Click"
+    Content="Arrow"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="ArrowPentagonButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="ArrowPentagonButton_Click"
+    Content="Pentagon"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" />
+<RadioButton
+    Name="CollateButton"
+    Width="60"
+    Height="40"
+    BorderBrush="#FF969696"
+    Click="CollateButton_Click"
+    Content="Collate"
+    GroupName="Shape"
+    Style="{StaticResource ColorfulRadioButton}" /> -->

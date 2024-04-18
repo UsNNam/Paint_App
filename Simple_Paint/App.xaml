@@ -11,37 +11,6 @@
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="RadioButton">
-                            <Grid>
-                                <!--  Custom circle  -->
-                                <Ellipse
-                                    Width="20"
-                                    Height="20"
-                                    Fill="Red" />
-                                <Ellipse
-                                    x:Name="CheckedMark"
-                                    Width="24"
-                                    Height="24"
-                                    Fill="Transparent"
-                                    Stroke="Black"
-                                    Visibility="Collapsed" />
-
-                                <!--  Content  -->
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <!--  Trigger to show checked mark when RadioButton is checked  -->
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="CheckedMark" Property="Visibility" Value="Visible" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
             <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
                 <Setter Property="Foreground" Value="White" />
                 <Setter Property="Background" Value="#333333" />
@@ -93,35 +62,132 @@
                 <Setter Property="Padding" Value="6" />
             </Style>
             <Style x:Key="ToolbarToggleButtonStyle" TargetType="{x:Type ToggleButton}">
-                <Setter Property="Background" Value="White"/>
-                <Setter Property="Foreground" Value="Black"/>
-                <Setter Property="BorderBrush" Value="Gray"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Padding" Value="5"/>
-                <Setter Property="Margin" Value="2"/>
-                <Setter Property="HorizontalAlignment" Value="Center"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="FontSize" Value="12"/>
-                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Background" Value="White" />
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="BorderBrush" Value="Gray" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ToggleButton}">
-                            <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="3">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Margin="{TemplateBinding Padding}"/>
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                                <ContentPresenter
+                                    Margin="{TemplateBinding Padding}"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#FFEEEEEE"/>
+                                    <Setter Property="Background" Value="#FFEEEEEE" />
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Background" Value="#FFDDDDDD"/>
-                                    <Setter Property="Foreground" Value="#FF0062CC"/>
+                                    <Setter Property="Background" Value="#FFDDDDDD" />
+                                    <Setter Property="Foreground" Value="#FF0062CC" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CustomButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="#007ACC" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="FontFamily" Value="Segoe UI" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#005A8C" />
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#003F63" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+
+            <Style x:Key="CustomShapeButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="#4CAF50" />
+                <!-- Màu xanh lá sáng -->
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="FontFamily" Value="Segoe UI" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#388E3C" />
+                        <!-- Màu xanh lá đậm hơn khi di chuột qua -->
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#1B5E20" />
+                        <!-- Màu xanh lá rất đậm khi nút được nhấn -->
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="CustomRadioButtonStyle" TargetType="RadioButton">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Grid>
+                                <!--  Custom circle  -->
+                                <Ellipse
+                                    Width="20"
+                                    Height="20"
+                                    Fill="Red" />
+                                <Ellipse
+                                    x:Name="CheckedMark"
+                                    Width="24"
+                                    Height="24"
+                                    Fill="Transparent"
+                                    Stroke="Black"
+                                    Visibility="Collapsed" />
+
+                                <!--  Content  -->
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <!--  Trigger to show checked mark when RadioButton is checked  -->
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="CheckedMark" Property="Visibility" Value="Visible" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

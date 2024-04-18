@@ -409,6 +409,23 @@
                 Content="Load"
                 Style="{StaticResource CustomButtonStyle}" />
 
+            <Button
+                Name="AddLayer"
+                Width="100"
+                Height="30"
+                Margin="20,0,0,0"
+                Click="btnAddLayer_Click"
+                Content="Add Layer"
+                Style="{StaticResource CustomButtonStyle}" />
+
+        </StackPanel>
+        <StackPanel Orientation="Horizontal"
+                    Name="LayerPanel"
+                    DockPanel.Dock="Top"
+                    Height="50"
+                    Width="Auto">
+            <CheckBox Content="Layer 1" HorizontalAlignment="Left" Foreground="Black" VerticalAlignment="Center" Margin="20,0,0,0" IsChecked="True"
+                      Checked="Layer_Checked" Unchecked="Layer_Unchecked"/>
         </StackPanel>
         <Canvas
             x:Name="canvas"

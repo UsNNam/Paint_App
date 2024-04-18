@@ -31,6 +31,8 @@ namespace Simple_Paint
         public static Point bottomRight = new Point(0, 0);
 
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
+        public static List<LayerShape> layers = new List<LayerShape>();
+        public int curLayer = 0;
         public static string shapeType = "Line";
         public static ShapeToDraw copyShape = null;
         public static int copyCutState = 0;
@@ -50,6 +52,7 @@ namespace Simple_Paint
             ShapeToDraw.canvas = canvas;
             Caretaker.add(new Memento(history));
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
+            layers.Add(new LayerShape());
         }
 
         private void SaveSolidColorBrush(BinaryWriter writer, SolidColorBrush brush)
@@ -176,9 +179,126 @@ namespace Simple_Paint
             return shapes;
         }
 
+        private void btnAddLayer_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = new CheckBox();
+            checkBox.Content = "Layer " + (LayerPanel.Children.Count + 1);
+            checkBox.Checked += Layer_Checked;
+            checkBox.Unchecked += Layer_Unchecked;
+            checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+            checkBox.VerticalAlignment = VerticalAlignment.Center;
+            checkBox.Foreground = Brushes.Black;
+            checkBox.Margin = new Thickness(20, 0, 0, 0);
+            LayerPanel.Children.Add(checkBox);
+
+            layers.Add(new LayerShape());
+
+        }
+
+        private void Layer_Checked(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)sender;
+            int index = LayerPanel.Children.IndexOf(checkBox);
+
+/*            if (numberLayerChecked() == 2)
+            {
+                if (curLayer != -1)
+                {
+                    layers[curLayer].shapeToDraws = new List<ShapeToDraw>(history);
+                }
+            }*/
+
+            if (numberLayerChecked() == 1)
+            {
+                curLayer = index;
+            }
+            else
+            {
+                curLayer = -1;
+            }
 
 
+/*            foreach (ShapeToDraw shape in history)
+            {
+                shape.Remove();
+            }
+            history.Clear();*/
+            
+            if (index >= 0 && index < layers.Count)
+            {
+                layers[index].Draw();
+                history.AddRange(layers[index].shapeToDraws);
+            }
+            
 
+            
+        }
+
+        private void Layer_Unchecked(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)sender;
+            int index = LayerPanel.Children.IndexOf(checkBox);
+            if (numberLayerChecked() == 0)
+            {
+                layers[curLayer].shapeToDraws = new List<ShapeToDraw>(history);
+                foreach (ShapeToDraw shape in history)
+                {
+                    shape.Remove();
+                }
+                history.Clear();
+            }
+
+            if (numberLayerChecked() == 1)
+            {
+                curLayer = indexLayerChecked();
+            }
+            else
+            {
+                curLayer = -1;
+            }
+            //history.Clear();
+
+            if (numberLayerChecked() != 0 && index >= 0 && index < history.Count)
+            {
+
+                //Remove shapes of this layer in history variable
+
+                foreach (ShapeToDraw shape in layers[index].shapeToDraws)
+                {
+                    shape.Remove();
+                    history.Remove(shape);
+                }
+                layers[index].Remove();
+            }
+
+        }
+
+        private int numberLayerChecked()
+        {
+            int count = 0;
+            foreach (CheckBox checkBox in LayerPanel.Children)
+            {
+                if (checkBox.IsChecked == true)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private int indexLayerChecked()
+        {
+            int index = 0;
+            foreach (CheckBox checkBox in LayerPanel.Children)
+            {
+                if (checkBox.IsChecked == true)
+                {
+                    return index;
+                }
+                index++;
+            }
+            return -1;
+        }
 
 
 

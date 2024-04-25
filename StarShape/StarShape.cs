@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,7 @@ using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using MyTriangle;
 using Shapes;
@@ -24,6 +25,8 @@ namespace StarShape
     {
         TriangleShape triangle1, triangle2;
         LineShape line1, line2, line3;
+        PointCollection points;
+        Polygon star;
         public StarShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
             Point newEndPoint1 = new Point(endPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 3 / 4, 0));
@@ -78,12 +81,33 @@ namespace StarShape
 
             UpdateStartAndEndPoint();
 
-            triangle1.StartPoint = StartPoint;
-            triangle1.Draw();
-            triangle2.Draw();
-            line1.Draw();
-            line2.Draw();
-            line3.Draw();
+            // Tính kích thước và tâm của hình chữ nhật
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);
+
+            // Tạo danh sách điểm cho ngôi sao
+            points = new PointCollection();
+            for (int i = 0; i < 10; i++)
+            {
+                double angle = i * Math.PI / 5 - Math.PI / 2;
+                double radius = (i % 2 == 0) ? Math.Min(width, height) / 2 : Math.Min(width, height) / 4;  // giảm bán kính cho các điểm trong
+                double x = center.X + radius * Math.Cos(angle) * (width / height);  // Điều chỉnh theo tỷ lệ chiều rộng
+                double y = center.Y + radius * Math.Sin(angle);  // Không cần điều chỉnh chiều cao
+                points.Add(new Point(x, y));
+            }
+
+            // Tạo và cấu hình đối tượng Polygon
+            star = new Polygon
+            {
+                Points = points,
+                Stroke = Brushes.Black,
+                Fill = Brushes.Yellow,
+                StrokeThickness = 2
+            };
+
+            // Thêm ngôi sao vào Canvas
+            canvas.Children.Add(star);
 
             base.Draw();
         }
@@ -105,14 +129,27 @@ namespace StarShape
             line3.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 5 / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
             line3.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
 
-            line1.UpdateEndPoint();
-            line1.UpdateStartPoint();
-            line2.UpdateEndPoint();
-            line2.UpdateStartPoint();
-            line3.UpdateEndPoint();
-            line3.UpdateStartPoint();
-            triangle1.UpdateEndPoint();
-            triangle2.UpdateEndPoint();
+            /*            line1.UpdateEndPoint();
+                        line1.UpdateStartPoint();
+                        line2.UpdateEndPoint();
+                        line2.UpdateStartPoint();
+                        line3.UpdateEndPoint();
+                        line3.UpdateStartPoint();
+                        triangle1.UpdateEndPoint();
+                        triangle2.UpdateEndPoint();*/
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);
+
+
+            for (int i = 0; i < 10; i++)
+            {
+                double angle = i * Math.PI / 5 - Math.PI / 2;
+                double radius = (i % 2 == 0) ? Math.Min(width, height) / 2 : Math.Min(width, height) / 4;  // giảm bán kính cho các điểm trong
+                double x = center.X + radius * Math.Cos(angle) * (width / height);  // Điều chỉnh theo tỷ lệ chiều rộng
+                double y = center.Y + radius * Math.Sin(angle);  // Không cần điều chỉnh chiều cao
+                points[i] = new Point(x, y);
+            }
 
         }
         //UpdateStartAndEndPoint
@@ -130,7 +167,21 @@ namespace StarShape
             {
                 return;
             }
-            triangle1.StartPoint = StartPoint;
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);
+
+
+            for (int i = 0; i < 10; i++)
+            {
+                double angle = i * Math.PI / 5 - Math.PI / 2;
+                double radius = (i % 2 == 0) ? Math.Min(width, height) / 2 : Math.Min(width, height) / 4;  // giảm bán kính cho các điểm trong
+                double x = center.X + radius * Math.Cos(angle) * (width / height);  // Điều chỉnh theo tỷ lệ chiều rộng
+                double y = center.Y + radius * Math.Sin(angle);  // Không cần điều chỉnh chiều cao
+                points[i] = new Point(x, y);
+            }
+
+            /*triangle1.StartPoint = StartPoint;
             triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
             triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
@@ -151,7 +202,7 @@ namespace StarShape
             line2.UpdateStartAndEndPoint();
             line3.UpdateStartAndEndPoint();
             triangle1.UpdateStartAndEndPoint();
-            triangle2.UpdateStartAndEndPoint();
+            triangle2.UpdateStartAndEndPoint();*/
 
             base.UpdateStartAndEndPoint();
         }
@@ -165,12 +216,13 @@ namespace StarShape
             base.RotateSelectedBorder();
             Point center = CalculateCenter();
             RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
+            star.RenderTransform = rotateTransform;
 
-            triangle1.Rotate(curAngle);
+/*            triangle1.Rotate(curAngle);
             triangle2.Rotate(curAngle);
             line1.Rotate(angle);
             line2.Rotate(angle);
-            line3.Rotate(angle);
+            line3.Rotate(angle);*/
         }
     }
 

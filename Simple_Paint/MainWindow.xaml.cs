@@ -142,6 +142,20 @@ namespace Simple_Paint
                     SaveSolidColorBrush(writer, shape.stroke.fillColor);
                     SaveSolidColorBrush(writer, shape.stroke.borderColor);
 
+                    if(shape.textBox != null)
+                    {
+                        writer.Write("1");
+                        writer.Write(shape.textBox.Text);
+                        writer.Write(shape.textBox.FontSize);
+                        SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Foreground); // fillColor
+                        SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Background); // Border
+                        writer.Write(shape.textBox.FontFamily.ToString());
+                    }
+                    else
+                    {
+                        writer.Write("0");
+                    }
+
                 }
             }
         }
@@ -185,13 +199,57 @@ namespace Simple_Paint
                     SolidColorBrush fillColor = LoadSolidColorBrush(reader);
                     SolidColorBrush borderColor = LoadSolidColorBrush(reader);
 
+                    string flag = reader.ReadString();
+                    if(flag == "0")
+                    {
+                        shapes.Add(FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor));
+                        shapes[shapes.Count - 1].StartPoint = new Point(startX, startY);
+                        shapes[shapes.Count - 1].EndPoint = new Point(endX, endY);
+                        shapes[shapes.Count - 1].Rotate(curAngle);
+                        shapes[shapes.Count - 1].Draw();
+                    }
+                    else
+                    {
+                        string text = reader.ReadString();
+                        double fontSize = reader.ReadDouble();
+                        SolidColorBrush textColor = LoadSolidColorBrush(reader);
+                        SolidColorBrush backgroundColor = LoadSolidColorBrush(reader);
+                        string fontFamily = reader.ReadString();
+
+                        ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
+                        
+
+
+                        shape.StartPoint = new Point(startX, startY);
+                        shape.EndPoint = new Point(endX, endY);
+                        shape.Rotate(curAngle);
+                        Dispatcher.Invoke(() =>
+                        {
+                            // Cập nhật UI tại đây
+                            shape.Draw();
+                            shape.attachTextBox(textColor, backgroundColor, (int)fontSize, fontFamily);
+                            shape.textBox.Text = text;
+                        });
+
+
+
+                        shapes.Add(shape);
+                    }
+
+/*                    string text = reader.ReadString();
+                    double fontSize = reader.ReadDouble();
+                    SolidColorBrush textColor = LoadSolidColorBrush(reader);
+                    SolidColorBrush backgroundColor = LoadSolidColorBrush(reader);
+                    string fontFamily = reader.ReadString();
+
+
                     ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
                     shape.StartPoint = new Point(startX, startY);
                     shape.EndPoint = new Point(endX, endY);
                     shape.Rotate(curAngle);
                     shape.Draw();
 
-                    shapes.Add(shape);
+                    shapes.Add(shape);*/
                 }
             }
 

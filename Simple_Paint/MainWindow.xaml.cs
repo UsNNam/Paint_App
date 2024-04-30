@@ -121,6 +121,14 @@ namespace Simple_Paint
             }
         }
 
+        private void clearHistory()
+        {
+            for(int i = 0;i< history.Count; i++)
+            {
+                history[i].Remove();
+            }
+            history.Clear();
+        }
 
         private void SaveShapes(List<ShapeToDraw> shapes, string fileName)
         {
@@ -220,7 +228,6 @@ namespace Simple_Paint
                         shapes.Add(shape);
 
 
-
                         shape.StartPoint = new Point(startX, startY);
                         shape.EndPoint = new Point(endX, endY);
                         shape.Rotate(curAngle);
@@ -228,31 +235,17 @@ namespace Simple_Paint
                         {
                             // Cập nhật UI tại đây
                             shape.Draw();
+                            Caretaker.add(new Memento(shapes));
                             shape.attachTextBox(textColor, backgroundColor, (int)fontSize, fontFamily);
                             shape.textBox.Text = text;
                         });
 
                     }
                     shapes[shapes.Count - 1].UpdateStartAndEndPoint();
-
-
-                    /*                    string text = reader.ReadString();
-                                        double fontSize = reader.ReadDouble();
-                                        SolidColorBrush textColor = LoadSolidColorBrush(reader);
-                                        SolidColorBrush backgroundColor = LoadSolidColorBrush(reader);
-                                        string fontFamily = reader.ReadString();
-
-
-                                        ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
-                                        shape.StartPoint = new Point(startX, startY);
-                                        shape.EndPoint = new Point(endX, endY);
-                                        shape.Rotate(curAngle);
-                                        shape.Draw();
-
-                                        shapes.Add(shape);*/
+                    Caretaker.add(new Memento(shapes));
                 }
+                clearHistory();
             }
-
             return shapes;
         }
 
@@ -428,6 +421,21 @@ namespace Simple_Paint
                     copyShape.Draw();
                 }
                 e.Handled = true; // Mark the event as handled to prevent further processing
+            }
+            else if (e.Key == Key.Delete)
+            {
+                // Thực hiện hành động của bạn khi phím Delete được nhấn
+                DeleteSelectedShape();
+            }
+        }
+
+        private void DeleteSelectedShape()
+        {
+            if(code == ISSELECTELEMENT)
+            {
+                history.Remove(curShape);
+                curShape.RemoveBorderSelected();
+                curShape.Remove();
             }
         }
 
@@ -866,7 +874,7 @@ namespace Simple_Paint
                         if (curShape != null)
                         {
                             curShape.CreateBorderSelected();
-
+                            curShape.UpdateStartAndEndPoint();
                             if (curShape.IsInBorderRectangle(point) != 0)
                             {
 

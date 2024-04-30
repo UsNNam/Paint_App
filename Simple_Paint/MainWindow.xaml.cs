@@ -217,7 +217,8 @@ namespace Simple_Paint
                         string fontFamily = reader.ReadString();
 
                         ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
-                        
+                        shapes.Add(shape);
+
 
 
                         shape.StartPoint = new Point(startX, startY);
@@ -231,25 +232,24 @@ namespace Simple_Paint
                             shape.textBox.Text = text;
                         });
 
-
-
-                        shapes.Add(shape);
                     }
-
-/*                    string text = reader.ReadString();
-                    double fontSize = reader.ReadDouble();
-                    SolidColorBrush textColor = LoadSolidColorBrush(reader);
-                    SolidColorBrush backgroundColor = LoadSolidColorBrush(reader);
-                    string fontFamily = reader.ReadString();
+                    shapes[shapes.Count - 1].UpdateStartAndEndPoint();
 
 
-                    ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
-                    shape.StartPoint = new Point(startX, startY);
-                    shape.EndPoint = new Point(endX, endY);
-                    shape.Rotate(curAngle);
-                    shape.Draw();
+                    /*                    string text = reader.ReadString();
+                                        double fontSize = reader.ReadDouble();
+                                        SolidColorBrush textColor = LoadSolidColorBrush(reader);
+                                        SolidColorBrush backgroundColor = LoadSolidColorBrush(reader);
+                                        string fontFamily = reader.ReadString();
 
-                    shapes.Add(shape);*/
+
+                                        ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
+                                        shape.StartPoint = new Point(startX, startY);
+                                        shape.EndPoint = new Point(endX, endY);
+                                        shape.Rotate(curAngle);
+                                        shape.Draw();
+
+                                        shapes.Add(shape);*/
                 }
             }
 

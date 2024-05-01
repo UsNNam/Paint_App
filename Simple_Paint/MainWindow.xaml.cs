@@ -42,7 +42,6 @@ namespace Simple_Paint
             baseShapes.Add(new RectangleShape(new Point(0, 0), new Point(0, 0)));
         }
 
-
         public static Point topLeft = new Point(0, 0);
         public static Point bottomRight = new Point(0, 0);
 
@@ -251,6 +250,11 @@ namespace Simple_Paint
 
         private void btnAddLayer_Click(object sender, RoutedEventArgs e)
         {
+            addNewLlayer();
+        }
+
+        private void addNewLlayer()
+        {
             CheckBox checkBox = new CheckBox();
             checkBox.Content = "Layer " + (LayerPanel.Children.Count + 1);
             checkBox.Checked += Layer_Checked;
@@ -262,7 +266,6 @@ namespace Simple_Paint
             LayerPanel.Children.Add(checkBox);
 
             layers.Add(new LayerShape());
-
         }
 
         private void Layer_Checked(object sender, RoutedEventArgs e)

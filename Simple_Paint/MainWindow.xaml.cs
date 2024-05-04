@@ -236,14 +236,14 @@ namespace Simple_Paint
                         {
                             // Cập nhật UI tại đây
                             shape.Draw();
-                            Caretaker.add(new Memento(shapes));
+                            if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
                             shape.attachTextBox(textColor, backgroundColor, (int)fontSize, fontFamily);
                             shape.textBox.Text = text;
                         });
 
                     }
                     shapes[shapes.Count - 1].UpdateStartAndEndPoint();
-                    Caretaker.add(new Memento(shapes));
+                    if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
                 }
                 clearHistory();
             }

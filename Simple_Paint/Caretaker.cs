@@ -34,6 +34,8 @@ namespace Simple_Paint
 
         public void undo()
         {
+            if (index == -1) return;
+
             if (history1.Count >= 2)
             {
                 Debug.WriteLine("Count1: " + history1[1].shapeList.Count);
@@ -67,7 +69,9 @@ namespace Simple_Paint
         }
         public void redo()
         {
-            if(MainWindow.history.Count > 0)
+            if (index == -1) return;
+
+            if (MainWindow.history.Count > 0)
             {
                 foreach (ShapeToDraw shape in MainWindow.history)
                 {

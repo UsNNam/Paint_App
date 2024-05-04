@@ -483,7 +483,10 @@ namespace Shapes
             line.Y1 = StartPoint.Y;
             line.X2 = EndPoint.X;
             line.Y2 = EndPoint.Y;
-            canvas.Children.Add(line);
+            if (!canvas.Children.Contains(line))
+            {
+                canvas.Children.Add(line);
+            }
             base.Draw();
         }
         public override void UpdateEndPoint()

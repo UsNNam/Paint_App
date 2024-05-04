@@ -24,9 +24,9 @@ namespace Simple_Paint
         ShapeToDraw curShape;
         bool isDraw = false;
         // Default setting
-        public static SolidColorBrush fillColorMain = null;
-        public static SolidColorBrush borderColorMain = Brushes.Black;
-        public static double thickness = 1;
+        public SolidColorBrush fillColorMain = null;
+        public SolidColorBrush borderColorMain = Brushes.Black;
+        public double thickness = 1;
         //public static Stroke stroke = new SolidStroke(Brushes.Black, 1, null);
         public static string typeOfStroke = "Solid";
 
@@ -42,17 +42,17 @@ namespace Simple_Paint
             baseShapes.Add(new RectangleShape(new Point(0, 0), new Point(0, 0)));
         }
 
-        public static Point topLeft = new Point(0, 0);
-        public static Point bottomRight = new Point(0, 0);
+        public Point topLeft = new Point(0, 0);
+        public Point bottomRight = new Point(0, 0);
 
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
-        public static List<LayerShape> layers = new List<LayerShape>();
+        public List<LayerShape> layers = new List<LayerShape>();
         public int curLayer = 0;
-        public static string shapeType = "Line";
-        public static ShapeToDraw copyShape = null;
-        public static int copyCutState = 0;
-        public static int isSelectArea = 0;
-        public static int code = 0;
+        public string shapeType = "Line";
+        public ShapeToDraw copyShape = null;
+        public int copyCutState = 0;
+        public int isSelectArea = 0;
+        public int code = 0;
         
         public const int NORMAL = 0;
         public const int ISSELECT = 1;
@@ -66,7 +66,7 @@ namespace Simple_Paint
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
             //Caretaker.add(new Memento(history));
-            
+            history = new List<ShapeToDraw>();
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
             layers.Add(new LayerShape());
             if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
@@ -136,35 +136,47 @@ namespace Simple_Paint
             using (FileStream fs = new FileStream(fileName, FileMode.Create))
             using (BinaryWriter writer = new BinaryWriter(fs))
             {
-                writer.Write(shapes.Count);
-                foreach (ShapeToDraw shape in shapes)
+                layers[curLayer].shapeToDraws = new List<ShapeToDraw>(history);
+                int totalShape = 0;
+                for(int i=0; i < layers.Count; i++)
                 {
-                    writer.Write(shape.GetShapeType());
-                    writer.Write(shape.StartPoint.X);
-                    writer.Write(shape.StartPoint.Y);
-                    writer.Write(shape.EndPoint.X);
-                    writer.Write(shape.EndPoint.Y);
-                    writer.Write(shape.curAngle);
+                    totalShape += layers[i].shapeToDraws.Count;
+                }
 
-                    writer.Write(shape.stroke.GetStrokeType());
-                    writer.Write(shape.stroke.thickness);
-                    SaveSolidColorBrush(writer, shape.stroke.fillColor);
-                    SaveSolidColorBrush(writer, shape.stroke.borderColor);
-
-                    if(shape.textBox != null)
+                writer.Write(layers.Count()-1);
+                writer.Write(totalShape);
+                foreach (LayerShape layerShape in layers)
+                {
+                    foreach (ShapeToDraw shape in layerShape.shapeToDraws)
                     {
-                        writer.Write("1");
-                        writer.Write(shape.textBox.Text);
-                        writer.Write(shape.textBox.FontSize);
-                        SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Foreground); // fillColor
-                        SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Background); // Border
-                        writer.Write(shape.textBox.FontFamily.ToString());
-                    }
-                    else
-                    {
-                        writer.Write("0");
-                    }
+                        writer.Write(shape.curLayer);
+                        writer.Write(shape.GetShapeType());
+                        writer.Write(shape.StartPoint.X);
+                        writer.Write(shape.StartPoint.Y);
+                        writer.Write(shape.EndPoint.X);
+                        writer.Write(shape.EndPoint.Y);
+                        writer.Write(shape.curAngle);
 
+                        writer.Write(shape.stroke.GetStrokeType());
+                        writer.Write(shape.stroke.thickness);
+                        SaveSolidColorBrush(writer, shape.stroke.fillColor);
+                        SaveSolidColorBrush(writer, shape.stroke.borderColor);
+
+                        if (shape.textBox != null)
+                        {
+                            writer.Write("1");
+                            writer.Write(shape.textBox.Text);
+                            writer.Write(shape.textBox.FontSize);
+                            SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Foreground); // fillColor
+                            SaveSolidColorBrush(writer, (SolidColorBrush)shape.textBox.Background); // Border
+                            writer.Write(shape.textBox.FontFamily.ToString());
+                        }
+                        else
+                        {
+                            writer.Write("0");
+                        }
+
+                    }
                 }
             }
         }
@@ -180,8 +192,14 @@ namespace Simple_Paint
 
             if (openFileDialog.ShowDialog() == true)
             {
-                history = LoadShapes(openFileDialog.FileName);
-                // Cập nhật UI hoặc canvas dựa trên các hình đã tải
+/*                history = LoadShapes(openFileDialog.FileName);
+*/                MainWindow newWindow = new MainWindow();
+
+                // Hiển thị cửa sổ
+                newWindow.Show();
+                MainWindow.history = newWindow.LoadShapes(openFileDialog.FileName);
+                // Đóng cửa sổ hiện tại
+                this.Close();
             }
         }
 
@@ -193,9 +211,19 @@ namespace Simple_Paint
             using (FileStream fs = new FileStream(fileName, FileMode.Open))
             using (BinaryReader reader = new BinaryReader(fs))
             {
+                // Handle number layer
+                int numberLayer = reader.ReadInt32();
+                for(int i = 0; i < numberLayer; i++)
+                {
+                    addNewLlayer();
+                }
+
+
+
                 int count = reader.ReadInt32();
                 for (int i = 0; i < count; i++)
                 {
+                    int curShapeLayer = reader.ReadInt32();
                     string shapeType = reader.ReadString();
                     double startX = reader.ReadDouble();
                     double startY = reader.ReadDouble();
@@ -211,11 +239,13 @@ namespace Simple_Paint
                     string flag = reader.ReadString();
                     if(flag == "0")
                     {
-                        shapes.Add(FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor));
-                        shapes[shapes.Count - 1].StartPoint = new Point(startX, startY);
-                        shapes[shapes.Count - 1].EndPoint = new Point(endX, endY);
-                        shapes[shapes.Count - 1].Rotate(curAngle);
-                        shapes[shapes.Count - 1].Draw();
+                        ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
+                        shape.StartPoint = new Point(startX, startY);
+                        shape.EndPoint = new Point(endX, endY);
+                        shape.Rotate(curAngle);
+                        shape.UpdateStartAndEndPoint();
+                        layers[curShapeLayer].shapeToDraws.Add(shape);
+
                     }
                     else
                     {
@@ -226,8 +256,6 @@ namespace Simple_Paint
                         string fontFamily = reader.ReadString();
 
                         ShapeToDraw shape = FactoryShape.CreateShape(shapeType, strokeType, borderColor, thickness, fillColor);
-                        shapes.Add(shape);
-
 
                         shape.StartPoint = new Point(startX, startY);
                         shape.EndPoint = new Point(endX, endY);
@@ -235,19 +263,28 @@ namespace Simple_Paint
                         Dispatcher.Invoke(() =>
                         {
                             // Cập nhật UI tại đây
-                            shape.Draw();
-                            if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
+                            if (curShapeLayer != -1) {
+                            
+                                //layers[curShapeLayer].caretaker.add(new Memento(history));
+                            
+                            };
                             shape.attachTextBox(textColor, backgroundColor, (int)fontSize, fontFamily);
                             shape.textBox.Text = text;
                         });
+                        shape.UpdateStartAndEndPoint();
+                        layers[curShapeLayer].shapeToDraws.Add(shape);
 
                     }
-                    shapes[shapes.Count - 1].UpdateStartAndEndPoint();
-                    if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
+                    if (curShapeLayer != -1)
+                    {
+                        //layers[curShapeLayer].caretaker.add(new Memento(history));
+                    }
                 }
                 clearHistory();
+
+                layers[0].Draw();
             }
-            return shapes;
+            return new List<ShapeToDraw>(layers[0].shapeToDraws);
         }
 
         private void btnAddLayer_Click(object sender, RoutedEventArgs e)

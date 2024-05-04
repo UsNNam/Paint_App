@@ -65,7 +65,7 @@ namespace Shapes
 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
-        public TextBox textBox;
+        public TextBox textBox =  null;
 
         public Stroke stroke;
         public Stroke old;
@@ -306,7 +306,7 @@ namespace Shapes
                 if (textBox.Height < (EndPoint.Y - StartPoint.Y))
                 {
                     //Calculate height depending on the number of lines and font size
-                    textBox.Height = textBox.LineCount * fontsize * 20 / 12;
+                    textBox.Height = Math.Max(textBox.LineCount * fontsize * 20 / 12, fontsize * 20 / 12);
                 }
 
 
@@ -335,7 +335,10 @@ namespace Shapes
             if (textBox != null)
             {
                 updateTextBoxPosition();
-                canvas.Children.Add(textBox);
+                if (!canvas.Children.Contains(textBox))
+                {
+                    canvas.Children.Add(textBox);
+                }
             }
         }
         virtual public void UpdateEndPoint()

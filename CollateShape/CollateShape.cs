@@ -99,6 +99,14 @@ namespace CollateShape
 
             base.UpdateStartAndEndPoint();
 
+            if (collateShape!= null && stroke != null && textStyleState == false)
+            {
+                collateShape.Stroke = this.stroke.borderColor;
+                collateShape.StrokeThickness = this.stroke.thickness;
+                collateShape.StrokeDashArray = this.stroke.strokeDashArray;
+                collateShape.Fill = this.stroke.fillColor;
+            }
+
             if (!(base.StartPoint == base.EndPoint))
             {
                 points[0] = StartPoint;

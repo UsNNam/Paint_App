@@ -103,6 +103,14 @@ namespace PentagonArrowShape
         {
             base.UpdateStartAndEndPoint();
 
+            if (arrowPentagon!= null && stroke != null && textStyleState == false)
+            {
+                arrowPentagon.Stroke = this.stroke.borderColor;
+                arrowPentagon.StrokeThickness = this.stroke.thickness;
+                arrowPentagon.StrokeDashArray = this.stroke.strokeDashArray;
+                arrowPentagon.Fill = this.stroke.fillColor;
+            }
+
             if (!(base.StartPoint == base.EndPoint))
             {
                 double width = EndPoint.X - StartPoint.X;
@@ -123,7 +131,7 @@ namespace PentagonArrowShape
         public override void Rotate(double angle)
         {
             curAngle += angle;
-            RotateSelectedBorder();
+            base.RotateSelectedBorder();
             Point center = CalculateCenter();
             RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
             arrowPentagon.RenderTransform = rotateTransform;

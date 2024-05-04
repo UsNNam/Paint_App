@@ -137,6 +137,14 @@ namespace MyArrow
             rectangle.Drag(curDragPoint)*/
             base.UpdateStartAndEndPoint();
 
+            if (arrow != null && stroke != null && textStyleState == false)
+            {
+                arrow.Stroke = this.stroke.borderColor;
+                arrow.StrokeThickness = this.stroke.thickness;
+                arrow.StrokeDashArray = this.stroke.strokeDashArray;
+                arrow.Fill = this.stroke.fillColor;
+            }
+
             if (!(base.StartPoint == base.EndPoint))
             {
                 double width = EndPoint.X - StartPoint.X;

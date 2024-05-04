@@ -82,7 +82,7 @@ namespace EllipseShape
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
-            if (stroke != null)
+            if (stroke != null && textStyleState == false)
             {
                 ellipse.Stroke = this.stroke.borderColor;
                 ellipse.StrokeThickness = this.stroke.thickness;

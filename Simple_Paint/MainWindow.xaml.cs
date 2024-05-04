@@ -66,10 +66,12 @@ namespace Simple_Paint
         {
             InitializeComponent();
             ShapeToDraw.canvas = canvas;
-            Caretaker.add(new Memento(history));
+            //Caretaker.add(new Memento(history));
+            
             curShape = new LineShape(new Point(0, 0), new Point(0, 0));
             layers.Add(new LayerShape());
-           
+            if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
+
             // Sửa chỗ này
             // curShape = new LineShape(new Point(0, 0), new Point(0, 0));
         }
@@ -789,6 +791,7 @@ namespace Simple_Paint
                             {
                                 curShape.StartPoint = new Point(point.X, point.Y);
                                 curShape.EndPoint = new Point(point.X, point.Y);
+                                if (curLayer != -1) curShape.curLayer = curLayer;
                                 curShape.Draw();
                                 isDraw = true;
                             }
@@ -866,7 +869,7 @@ namespace Simple_Paint
                         }
                         if (code != ISSELECT)
                         {
-                            Caretaker.add(new Memento(history));
+                            if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
                         }
                     }
 
@@ -908,19 +911,21 @@ namespace Simple_Paint
                 }
 
                 curShape.attachTextBox(fillColorMain, borderColorMain, int.Parse(selectedSize), selectedFont);
-                Caretaker.add(new Memento(history));
-
+                //Caretaker.add(new Memento(history));
+                if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
             }
         }
 
         private void Undo_Button(object sender, RoutedEventArgs e)
         {
-            Caretaker.undo();
+            //Caretaker.undo();
+            if (curLayer != -1) layers[curLayer].caretaker.undo();
         }
 
         private void Redo_Button(object sender, RoutedEventArgs e)
         {
-            Caretaker.redo();
+            //Caretaker.redo();
+            if (curLayer != -1) layers[curLayer].caretaker.redo();
         }
 
 
@@ -993,7 +998,8 @@ namespace Simple_Paint
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
-                    Caretaker.add(new Memento(history));
+                    //Caretaker.add(new Memento(history));
+                    if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
                     curShape.stroke.fillColor = fillColorMain;
                     curShape.UpdateStartAndEndPoint();
                     
@@ -1012,7 +1018,8 @@ namespace Simple_Paint
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
                 if (code == ISSELECTELEMENT)
                 {
-                    Caretaker.add(new Memento(history));
+                    //Caretaker.add(new Memento(history));
+                    if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
                     curShape.stroke.borderColor = borderColorMain.Clone();
                     curShape.UpdateStartAndEndPoint();
                     

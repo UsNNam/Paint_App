@@ -7,7 +7,7 @@ using Shapes;
 
 namespace Simple_Paint
 {
-    class Memento
+    public class Memento
     {
         public List<ShapeToDraw> shapeList;
 

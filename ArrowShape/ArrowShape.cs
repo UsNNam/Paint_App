@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,23 +21,24 @@ namespace MyArrow
     [Serializable]
     public class ArrowShape : ShapeToDraw
     {
-        public RectangleShape rectangle;
-        public TriangleShape triangle;
-        public LineShape line;
+        Polygon arrow;
+        PointCollection points;
         public ArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-            rectangle = new RectangleShape(startPoint, endPoint);
-            triangle = new TriangleShape(startPoint, endPoint);
-            line = new LineShape(new Point(0, 0), new Point(0, 0));
 
         }
 
         public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
         {
-            this.rectangle = (RectangleShape?)arrowShape.rectangle.Clone();
-            this.triangle = (TriangleShape?)arrowShape.triangle.Clone();
-            this.line = (LineShape?)arrowShape.line.Clone();
-            //UpdateStartAndEndPoint();
+            if(arrowShape.points != null)
+            {
+                points = new PointCollection();
+                for (int i = 0; i < 7; i++)
+                {
+                    points.Add(new Point(arrowShape.points[i].X, arrowShape.points[i].Y));
+                }
+            }
+
         }
 
 
@@ -52,42 +53,77 @@ namespace MyArrow
         public override void Remove()
         {
             base.Remove();
-            rectangle.Remove();
-            triangle.Remove();
-            line.Remove();
+            canvas.Children.Remove(arrow);
         }
         public override void Draw()
         {
-
-            rectangle.stroke = this.stroke;
-            triangle.stroke = this.stroke;
-            line.stroke = this.stroke;
-
+            
             UpdateStartAndEndPoint();
+            // Tính chiều rộng và chiều cao của hình chữ nhật
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
 
-            rectangle.Draw();
-            triangle.Draw();
-            line.Draw();
+            // Tạo một polygon mới
+            arrow = new Polygon();
+            arrow.Stroke = Brushes.Black;
+            arrow.Fill = Brushes.LightBlue;
+            arrow.StrokeThickness = 2;
 
+            if (stroke != null)
+            {
+                arrow.Stroke = this.stroke.borderColor;
+                arrow.StrokeThickness = this.stroke.thickness;
+                arrow.StrokeDashArray = this.stroke.strokeDashArray;
+                arrow.Fill = this.stroke.fillColor;
+            }
+
+            // Định nghĩa các điểm cho Polygon theo chiều rộng và chiều cao
+            points = new PointCollection
+            {
+                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5),  // Điểm bắt đầu cánh trái
+                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Đầu cánh phải
+                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải
+                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),        // Đỉnh của mũi tên
+                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải phía dưới
+                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
+                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5)   // Kết thúc cánh trái
+            };
+
+
+            arrow.Points = points;
+
+            ShapeToDraw.canvas.Children.Add(arrow);
             base.Draw();
         }
 
         public override void UpdateEndPoint()
         {
+            // Tính chiều rộng và chiều cao của hình chữ nhật
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
 
+            points[0] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
+            points[1] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
+            points[2] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2);
+            points[3] = new Point(StartPoint.X + width, StartPoint.Y + height * 0.5);
+            points[4] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8);
+            points[5] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
+            points[6] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
 
-            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-            rectangle.UpdateEndPoint();
-            rectangle.UpdateStartPoint();
-            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
-            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
-            triangle.UpdateEndPointLandscapeOrientation();
+            //arrow.Points = points;
 
-            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-            line.UpdateEndPoint();
-            line.UpdateStartPoint();
+            /*            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+                        rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+                        rectangle.UpdateEndPoint();
+                        rectangle.UpdateStartPoint();
+                        triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
+                        triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
+                        triangle.UpdateEndPointLandscapeOrientation();
+
+                        line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
+                        line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+                        line.UpdateEndPoint();
+                        line.UpdateStartPoint();*/
         }
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
@@ -101,28 +137,40 @@ namespace MyArrow
             rectangle.Drag(curDragPoint)*/
             base.UpdateStartAndEndPoint();
 
-            rectangle.stroke = this.stroke;
-            triangle.stroke = this.stroke;
-            line.stroke = this.stroke;
+            if (!(base.StartPoint == base.EndPoint))
+            {
+                double width = EndPoint.X - StartPoint.X;
+                double height = EndPoint.Y - StartPoint.Y;
 
-            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-            rectangle.UpdateEndPoint();
-            rectangle.UpdateStartPoint();
-            triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
-            triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
-            triangle.UpdateEndPointLandscapeOrientation();
+                points[0] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
+                points[1] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
+                points[2] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2);
+                points[3] = new Point(StartPoint.X + width, StartPoint.Y + height * 0.5);
+                points[4] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8);
+                points[5] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
+                points[6] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
+                base.UpdateStartAndEndPoint();
+            }
 
-            line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-            line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-            line.UpdateEndPoint();
-            line.UpdateStartPoint();
 
-            rectangle.UpdateStartAndEndPoint();
-            line.UpdateStartAndEndPoint();
 
-            base.UpdateStartAndEndPoint();
+            //arrow.Points = points;
 
+            
+
+        }
+
+        private Point CalculateCenter()
+        {
+            return new Point((base.StartPoint.X + base.EndPoint.X) / 2.0, (base.StartPoint.Y + base.EndPoint.Y) / 2.0);
+        }
+        public override void Rotate(double angle)
+        {
+            curAngle += angle;
+            RotateSelectedBorder();
+            Point center = CalculateCenter();
+            RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
+            arrow.RenderTransform = rotateTransform;
         }
     }
 

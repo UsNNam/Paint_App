@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -22,6 +22,8 @@ namespace CollateShape
     class CollateShape : ShapeToDraw
     {
         TriangleShape triangle1, triangle2;
+        Polygon collateShape;
+        PointCollection points;
         public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
             triangle1 = new TriangleShape(StartPoint, EndPoint);
@@ -33,24 +35,40 @@ namespace CollateShape
         {
             this.triangle1 = (TriangleShape?)collateShape.triangle1.Clone();
             this.triangle2 = (TriangleShape?)collateShape.triangle2.Clone();
+            if(collateShape.points != null  )
+            {
+                points = new PointCollection();
+                for (int i = 0; i < 5; i++)
+                {
+                    points.Add(new Point(collateShape.points[i].X, collateShape.points[i].Y));
+                }
+            }
         }
 
         public override void Draw()
         {
             UpdateStartAndEndPoint();
-            triangle1.StartPoint = StartPoint;
-            triangle1.EndPoint = EndPoint;
+            collateShape = new Polygon();
+            if (stroke != null)
+            {
+                collateShape.Stroke = this.stroke.borderColor;
+                collateShape.StrokeThickness = this.stroke.thickness;
+                collateShape.StrokeDashArray = this.stroke.strokeDashArray;
+                collateShape.Fill = this.stroke.fillColor;
+            }
 
-            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
-            triangle2.EndPoint = new Point(EndPoint.X, EndPoint.Y);
+            // Định nghĩa các điểm cho Polygon để tạo hình dạng "Collate"
+            points = new PointCollection
+            {
+                StartPoint, // Góc trên bên trái
+                new Point(EndPoint.X, EndPoint.Y), // Góc dưới bên phải
+                new Point(StartPoint.X, EndPoint.Y), // Góc dưới bên trái
+                new Point(EndPoint.X, StartPoint.Y), // Góc trên bên phải
+                StartPoint // Trở lại điểm đầu tiên để đóng hình
+            };
 
-
-            triangle1.stroke = this.stroke;
-            triangle2.stroke = this.stroke;
-
-            triangle1.Draw();
-            triangle2.Draw();
-
+            collateShape.Points = points;
+            ShapeToDraw.canvas.Children.Add(collateShape);
             base.Draw();
         }
         public override string GetShapeType()
@@ -63,36 +81,46 @@ namespace CollateShape
         }
         public override void UpdateEndPoint()
         {
-            triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
-            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y);
-            triangle1.UpdateEndPoint();
-            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
-            triangle2.EndPoint = EndPoint;
-            triangle2.UpdateEndPoint();
+            points[0] = StartPoint;
+            points[1] = EndPoint;
+            points[2] = new Point(StartPoint.X, EndPoint.Y);
+            points[3] = new Point(EndPoint.X, StartPoint.Y);
+            points[4] = StartPoint;
 
         }
         public override void Remove()
         {
             base.Remove();
-            triangle1.Remove();
-            triangle2.Remove();
+            canvas.Children.Remove(collateShape);
         }
         //UpdateStartAndEndPoint
         public override void UpdateStartAndEndPoint()
         {
-            base.UpdateStartAndEndPoint();
-
-            triangle1.stroke = this.stroke;
-            triangle2.stroke = this.stroke;
-
-            triangle1.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
-            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y);
-            triangle1.UpdateStartAndEndPoint();
-            triangle2.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
-            triangle2.EndPoint = EndPoint;
-            triangle2.UpdateStartAndEndPoint();
 
             base.UpdateStartAndEndPoint();
+
+            if (!(base.StartPoint == base.EndPoint))
+            {
+                points[0] = StartPoint;
+                points[1] = EndPoint;
+                points[2] = new Point(StartPoint.X, EndPoint.Y);
+                points[3] = new Point(EndPoint.X, StartPoint.Y);
+                points[4] = StartPoint;
+                base.UpdateStartAndEndPoint();
+            }
+        }
+
+        private Point CalculateCenter()
+        {
+            return new Point((base.StartPoint.X + base.EndPoint.X) / 2.0, (base.StartPoint.Y + base.EndPoint.Y) / 2.0);
+        }
+        public override void Rotate(double angle)
+        {
+            curAngle += angle;
+            RotateSelectedBorder();
+            Point center = CalculateCenter();
+            RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
+            collateShape.RenderTransform = rotateTransform;
         }
     }
 

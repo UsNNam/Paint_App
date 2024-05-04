@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 using Shapes;
 namespace Simple_Paint
 {
-    class Caretaker
+    public class Caretaker
     {
-        static private int index = -1;
-        static private List<Memento> history1 = new List<Memento>();
+        private int index = -1;
+        private List<Memento> history1 = new List<Memento>();
 
         public Caretaker()
         {
             
         }
 
-        static public void add(Memento memento)
+        public void add(Memento memento)
         {
             if(index >= 0 && index < history1.Count - 1)
             {
@@ -32,7 +32,7 @@ namespace Simple_Paint
             
         }
 
-        static public void undo()
+        public void undo()
         {
             if (history1.Count >= 2)
             {
@@ -65,7 +65,7 @@ namespace Simple_Paint
             
             
         }
-        static public void redo()
+        public void redo()
         {
             if(MainWindow.history.Count > 0)
             {

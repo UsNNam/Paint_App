@@ -32,26 +32,28 @@ namespace StarShape
             Point newEndPoint1 = new Point(endPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 3 / 4, 0));
             Point newStartPoint = new Point(startPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 4 / 3, 0));
             Point newEndPoint = new Point(endPoint.X, startPoint.Y);
-
-            triangle1 = new TriangleShape(new Point(0, 0), new Point(0, 0));
-            triangle2 = new TriangleShape(new Point(0, 0), new Point(0, 0));
-
-            line1 = new LineShape(new Point(0, 0), new Point(0, 0));
-            line2 = new LineShape(new Point(0, 0), new Point(0, 0));
-            line3 = new LineShape(new Point(0, 0), new Point(0, 0));
         }
         public StarShape(StarShape starShape) : base(starShape)
         {
-            this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
+            /*          this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
 
-            this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
-            triangle1.StartPoint = starShape.StartPoint;
-            triangle1.EndPoint = starShape.StartPoint;
-            triangle2.StartPoint = starShape.StartPoint;
-            triangle2.EndPoint = starShape.StartPoint;
-            this.line1 = (LineShape?)starShape.line1.Clone();
-            this.line2 = (LineShape?)starShape.line2.Clone();
-            this.line3 = (LineShape?)starShape.line3.Clone();
+                        this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
+                        triangle1.StartPoint = starShape.StartPoint;
+                        triangle1.EndPoint = starShape.StartPoint;
+                        triangle2.StartPoint = starShape.StartPoint;
+                        triangle2.EndPoint = starShape.StartPoint;
+                        this.line1 = (LineShape?)starShape.line1.Clone();
+                        this.line2 = (LineShape?)starShape.line2.Clone();
+                        this.line3 = (LineShape?)starShape.line3.Clone();*/
+            if(starShape.points != null)
+            {
+                points = new PointCollection();
+                for (int i = 0; i < 10; i++)
+                {
+                    points.Add(new Point(starShape.points[i].X, starShape.points[i].Y));
+                }
+            }
+            
         }
         public override string GetShapeType()
         {
@@ -64,20 +66,11 @@ namespace StarShape
         public override void Remove()
         {
             base.Remove();
-            triangle1.Remove();
-            triangle2.Remove();
-            line1.Remove();
-            line2.Remove();
-            line3.Remove();
+            canvas.Children.Remove(star);
         }
         public override void Draw()
         {
-
-            triangle1.stroke = this.stroke;
-            triangle2.stroke = this.stroke;
-            line1.stroke = this.stroke;
-            line2.stroke = this.stroke;
-            line3.stroke = this.stroke;
+            
 
             UpdateStartAndEndPoint();
 
@@ -106,6 +99,14 @@ namespace StarShape
                 StrokeThickness = 2
             };
 
+            if (stroke != null)
+            {
+                star.Stroke = this.stroke.borderColor;
+                star.StrokeThickness = this.stroke.thickness;
+                star.StrokeDashArray = this.stroke.strokeDashArray;
+                star.Fill = this.stroke.fillColor;
+            }
+
             // Thêm ngôi sao vào Canvas
             canvas.Children.Add(star);
 
@@ -117,7 +118,7 @@ namespace StarShape
             {
                 return;
             }
-            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
+/*            triangle1.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
             triangle2.StartPoint = new Point(StartPoint.X, EndPoint.Y);
             triangle2.EndPoint = new Point(EndPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 1 / 4);
             line1.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
@@ -128,7 +129,7 @@ namespace StarShape
 
             line3.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 5 / 6, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 2);
             line3.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 2 / 3, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-
+*/
             /*            line1.UpdateEndPoint();
                         line1.UpdateStartPoint();
                         line2.UpdateEndPoint();
@@ -156,12 +157,6 @@ namespace StarShape
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
-
-            triangle1.stroke = this.stroke;
-            triangle2.stroke = this.stroke;
-            line1.stroke = this.stroke;
-            line2.stroke = this.stroke;
-            line3.stroke = this.stroke;
 
             if (StartPoint == EndPoint)
             {

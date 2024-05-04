@@ -69,6 +69,7 @@ namespace Shapes
 
         public Stroke stroke;
         public Stroke old;
+        public int curLayer = 0;
 
         public RectangleShape borderSelected = null;
         public ShapeToDraw(ShapeToDraw shapeToDraw) : this(shapeToDraw.StartPoint, shapeToDraw.EndPoint)
@@ -81,7 +82,7 @@ namespace Shapes
                 this.textBox = CloneTextBox(shapeToDraw.textBox);
 
             }
-
+            this.curLayer = shapeToDraw.curLayer;
         }
 
         public TextBox CloneTextBox(TextBox textBox)

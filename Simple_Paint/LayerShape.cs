@@ -10,9 +10,11 @@ namespace Simple_Paint
     public class LayerShape
     {
         public List<ShapeToDraw> shapeToDraws;
+        public Caretaker caretaker { get; set; }
         public LayerShape()
         {
             shapeToDraws = new List<ShapeToDraw>();
+            caretaker = new Caretaker();
         }
 
         public void Draw()

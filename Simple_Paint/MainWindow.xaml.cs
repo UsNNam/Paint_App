@@ -420,7 +420,10 @@ namespace Simple_Paint
         private void Rotate_Button(object sender, RoutedEventArgs e)
         {
             // Thêm code để xử lý sự kiện khi nút được nhấn
-            curShape.Rotate(45);
+            if (curShape != null)
+            {
+                curShape.Rotate(45);
+            }
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)

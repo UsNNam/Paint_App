@@ -218,6 +218,7 @@
             </Canvas>
         </ToolBar>
         <StackPanel
+            Name="TextPanel"
             Width="Auto"
             Height="50"
             DockPanel.Dock="Top"

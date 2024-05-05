@@ -190,7 +190,6 @@ namespace MyArrow
 
             //arrow.Points = points;
 
-            
 
         }
 
@@ -201,12 +200,9 @@ namespace MyArrow
         public override void Rotate(double angle)
         {
             curAngle += angle;
-            base.RotateSelectedBorder();
-            // Đặt điểm tâm xoay tại tâm của ellipse
-            arrow.RenderTransformOrigin = new Point(0.5, 0.5);
-
-            // Tạo và áp dụng RotateTransform
-            RotateTransform rotateTransform = new RotateTransform(curAngle);
+            RotateSelectedBorder();
+            Point center = CalculateCenter();
+            RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
             arrow.RenderTransform = rotateTransform;
         }
     }

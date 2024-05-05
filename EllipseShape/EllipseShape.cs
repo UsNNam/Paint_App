@@ -36,7 +36,6 @@ namespace EllipseShape
             ellipse.StrokeDashArray = this.stroke.strokeDashArray;
             ellipse.Fill = this.stroke.fillColor;
 
-
             ellipse.Width = Math.Abs(EndPoint.X - StartPoint.X);
             ellipse.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
             Canvas.SetLeft(ellipse, StartPoint.X);

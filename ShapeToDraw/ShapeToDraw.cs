@@ -247,6 +247,25 @@ namespace Shapes
 
         }
 
+        public bool IsInsideArea(Point topLeft, Point bottomRight)
+        {
+            double minX = Math.Min(topLeft.X, bottomRight.X);
+            double minY = Math.Min(topLeft.Y, bottomRight.Y);
+            double maxX = Math.Max(topLeft.X, bottomRight.X);
+            double maxY = Math.Max(topLeft.Y, bottomRight.Y);
+
+            double shapeMinX = Math.Min(StartPoint.X, EndPoint.X);
+            double shapeMinY = Math.Min(StartPoint.Y, EndPoint.Y);
+            double shapeMaxX = Math.Max(StartPoint.X, EndPoint.X);
+            double shapeMaxY = Math.Max(StartPoint.Y, EndPoint.Y);
+
+            return shapeMinX >= minX &&
+                   shapeMinY >= minY &&
+                   shapeMaxX <= maxX &&
+                   shapeMaxY <= maxY;
+        }
+
+
         public void ResizeShape(Point point)
         {
 

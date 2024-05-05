@@ -14,27 +14,22 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using MyTriangle;
 using Shapes;
 namespace CollateShape
 {
     [Serializable]
     class CollateShape : ShapeToDraw
     {
-        TriangleShape triangle1, triangle2;
         Polygon collateShape;
         PointCollection points;
         public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-            triangle1 = new TriangleShape(StartPoint, EndPoint);
-            triangle2 = new TriangleShape(StartPoint, EndPoint);
+
             this.collateShape = new Polygon();
         }
 
         public CollateShape(CollateShape collateShape) : base(collateShape)
         {
-            this.triangle1 = (TriangleShape?)collateShape.triangle1.Clone();
-            this.triangle2 = (TriangleShape?)collateShape.triangle2.Clone();
 
             this.collateShape = new Polygon();
             // Định nghĩa các điểm cho Polygon để tạo hình dạng "Collate"

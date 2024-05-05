@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ShapeToDraw\ShapeToDraw.csproj" />
-    <ProjectReference Include="..\TriangleShape\TriangleShape.csproj" />
   </ItemGroup>
 
 </Project>

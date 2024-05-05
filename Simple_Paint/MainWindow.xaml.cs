@@ -452,7 +452,7 @@ namespace Simple_Paint
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 // Handle Ctrl + V here (e.g., perform paste operation)
-                if(!isDraw)
+                if(!isDraw && curLayer != -1)
                 {
                     if(copyCutState == 1 && copyShape != null)
                     {
@@ -462,6 +462,7 @@ namespace Simple_Paint
                     if (copySingleShape && copyShape != null)
                     {
                         copyShape = copyShape.Clone();
+                        copyShape.curLayer = curLayer;
                         copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
                         copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
                         copyShape.UpdateStartAndEndPoint();
@@ -471,19 +472,16 @@ namespace Simple_Paint
                     }
                     else if(copyClipboard)
                     {
-                        if(curLayer != -1)
+                        foreach (ShapeToDraw shape in copyShapeList)
                         {
-                            foreach (ShapeToDraw shape in copyShapeList)
-                            {
-                                shape.Draw();
-                                shape.curLayer = curLayer;
-                                shape.StartPoint = new Point(shape.StartPoint.X + 20, shape.StartPoint.Y + 20);
-                                shape.EndPoint = new Point(shape.EndPoint.X + 20, shape.EndPoint.Y + 20);
-                                shape.UpdateStartAndEndPoint();
-                                history.Add(shape);
-                            }
-                            layers[curLayer].caretaker.add(new Memento(history));
+                            shape.Draw();
+                            shape.curLayer = curLayer;
+                            shape.StartPoint = new Point(shape.StartPoint.X + 20, shape.StartPoint.Y + 20);
+                            shape.EndPoint = new Point(shape.EndPoint.X + 20, shape.EndPoint.Y + 20);
+                            shape.UpdateStartAndEndPoint();
+                            history.Add(shape);
                         }
+                        layers[curLayer].caretaker.add(new Memento(history));
                     }
 
                 }
@@ -586,14 +584,12 @@ namespace Simple_Paint
             double width = (double)(newBottomRight.X - newTopLeft.X);
             double height = (double)(newBottomRight.Y - newTopLeft.Y);
 
-            if(curLayer != -1)
+
+            for(int i = 0; i < history.Count; i++)
             {
-                for(int i = 0; i < history.Count; i++)
+                if (history[i].IsInsideArea(newTopLeft, newBottomRight))
                 {
-                    if (history[i].IsInsideArea(newTopLeft, newBottomRight))
-                    {
-                        copyShapeList.Add(history[i].Clone());
-                    }
+                    copyShapeList.Add(history[i].Clone());
                 }
             }
 

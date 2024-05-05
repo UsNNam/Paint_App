@@ -15,7 +15,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using MyTriangle;
 using Shapes;
 namespace MyArrow
 {
@@ -26,36 +25,56 @@ namespace MyArrow
         PointCollection points;
         public ArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
+            isPolygon = true;
+
+
             arrow = new Polygon();
+
+            arrow.RenderTransform = transformGroup;
+            transformGroup.Children.Add(translateTransform);
+
+            transformGroup.Children.Add(rotateTransform);
+
             double width = EndPoint.X - StartPoint.X;
             double height = EndPoint.Y - StartPoint.Y;
             points = new PointCollection
             {
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5),  // Điểm bắt đầu cánh trái
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Đầu cánh phải
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải
-                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),        // Đỉnh của mũi tên
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải phía dưới
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5)   // Kết thúc cánh trái
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5),     // Điểm bắt đầu cánh trái
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Đầu cánh phải
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải trên
+                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),         // Đỉnh của mũi tên
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải dưới
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5)                  // Kết thúc cánh trái
             };
         }
 
         public ArrowShape(ArrowShape arrowShape) : base(arrowShape)
         {
+
+
+            isPolygon = true;
+
             arrow = new Polygon();
             double width = EndPoint.X - StartPoint.X;
             double height = EndPoint.Y - StartPoint.Y;
             points = new PointCollection
             {
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5),  // Điểm bắt đầu cánh trái
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Đầu cánh phải
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải
-                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),        // Đỉnh của mũi tên
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải phía dưới
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5)   // Kết thúc cánh trái
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5),     // Điểm bắt đầu cánh trái
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Đầu cánh phải
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải trên
+                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),         // Đỉnh của mũi tên
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải dưới
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5)                  // Kết thúc cánh trái
             };
+
+            arrow.RenderTransform = transformGroup;
+            this.rotateTransform = CopyRotateTransform(arrowShape.rotateTransform);
+            this.translateTransform = CopyTranslateTransform(arrowShape.translateTransform);
+            this.transformGroup.Children.Add(translateTransform);
+            this.transformGroup.Children.Add(rotateTransform);
+
             if (arrowShape.points != null)
             {
                 points = new PointCollection();
@@ -106,13 +125,13 @@ namespace MyArrow
             // Định nghĩa các điểm cho Polygon theo chiều rộng và chiều cao
             points = new PointCollection
             {
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5),  // Điểm bắt đầu cánh trái
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Đầu cánh phải
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải
-                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),        // Đỉnh của mũi tên
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải phía dưới
-                new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
-                new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5)   // Kết thúc cánh trái
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5),     // Điểm bắt đầu cánh trái
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Đầu cánh phải
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.2),  // Điểm giữa cánh phải trên
+                new Point(StartPoint.X + width, StartPoint.Y + height * 0.5),         // Đỉnh của mũi tên
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.8),  // Điểm giữa cánh phải dưới
+                new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5),  // Kết thúc cánh phải
+                new Point(StartPoint.X, StartPoint.Y + height * 0.5)                  // Kết thúc cánh trái
             };
 
 
@@ -124,46 +143,15 @@ namespace MyArrow
 
         public override void UpdateEndPoint()
         {
-            // Tính chiều rộng và chiều cao của hình chữ nhật
-            double width = EndPoint.X - StartPoint.X;
-            double height = EndPoint.Y - StartPoint.Y;
-
-            points[0] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
-            points[1] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
-            points[2] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2);
-            points[3] = new Point(StartPoint.X + width, StartPoint.Y + height * 0.5);
-            points[4] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8);
-            points[5] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
-            points[6] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
-
-            //arrow.Points = points;
-
-            /*            rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-                        rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-                        rectangle.UpdateEndPoint();
-                        rectangle.UpdateStartPoint();
-                        triangle.StartPoint = new Point(EndPoint.X, StartPoint.Y);
-                        triangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, EndPoint.Y);
-                        triangle.UpdateEndPointLandscapeOrientation();
-
-                        line.StartPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-                        line.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-                        line.UpdateEndPoint();
-                        line.UpdateStartPoint();*/
+            base.UpdateEndPoint(); // Gọi implementation cơ bản nếu có.
+            UpdateArrowPoints(); // Cập nhật điểm dựa trên StartPoint và EndPoint hiện tại.
         }
-        //UpdateStartAndEndPoint
+
         public override void UpdateStartAndEndPoint()
         {
+            base.UpdateStartAndEndPoint(); // Gọi implementation cơ bản nếu có.
 
-            /*rectangle.StartPoint = new Point(StartPoint.X, StartPoint.Y + (EndPoint.Y - StartPoint.Y) / 4);
-            rectangle.EndPoint = new Point(StartPoint.X + (EndPoint.X - StartPoint.X) * 3 / 4, StartPoint.Y + (EndPoint.Y - StartPoint.Y) * 3 / 4);
-            rectangle.isDragging = this.isDragging;
-            rectangle.dragStartPoint = this.dragStartPoint;
-            rectangle.curDragPoint = this.curDragPoint;
-            rectangle.Drag(curDragPoint)*/
-            base.UpdateStartAndEndPoint();
-
-            if (arrow != null && stroke != null && textStyleState == false)
+            if (arrow != null && stroke != null)
             {
                 arrow.Stroke = this.stroke.borderColor;
                 arrow.StrokeThickness = this.stroke.thickness;
@@ -171,26 +159,35 @@ namespace MyArrow
                 arrow.Fill = this.stroke.fillColor;
             }
 
-            if (!(base.StartPoint == base.EndPoint))
+
+            UpdateArrowPoints(); // Cập nhật điểm sau khi cập nhật stroke và fill.
+
+            // Không cần kiểm tra base.StartPoint == base.EndPoint vì không rõ mục đích.
+        }
+
+        private void UpdateArrowPoints()
+        {
+            if (points != null)
             {
                 double width = EndPoint.X - StartPoint.X;
                 double height = EndPoint.Y - StartPoint.Y;
 
-                points[0] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
-                points[1] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
-                points[2] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.2);
+                points[0] = new Point(StartPoint.X, StartPoint.Y + height * 0.5);
+                points[1] = new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5);
+                points[2] = new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.2);
                 points[3] = new Point(StartPoint.X + width, StartPoint.Y + height * 0.5);
-                points[4] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.8);
-                points[5] = new Point(StartPoint.X + width * 0.8, StartPoint.Y + height * 0.5);
-                points[6] = new Point(StartPoint.X + width * 0.2, StartPoint.Y + height * 0.5);
-                base.UpdateStartAndEndPoint();
+                points[4] = new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.8);
+                points[5] = new Point(StartPoint.X + width * 0.75, StartPoint.Y + height * 0.5);
+                points[6] = new Point(StartPoint.X, StartPoint.Y + height * 0.5);
+
+                arrow.Points = points; // Đảm bảo các điểm được cập nhật cho arrow.
             }
+        }
 
-
-
-            //arrow.Points = points;
-
-
+        public override void MovePolygon(double deltaX, double deltaY)
+        {
+            translateTransform.X += deltaX;
+            translateTransform.Y += deltaY;
         }
 
         private Point CalculateCenter()
@@ -202,8 +199,12 @@ namespace MyArrow
             curAngle += angle;
             RotateSelectedBorder();
             Point center = CalculateCenter();
-            RotateTransform rotateTransform = new RotateTransform(curAngle, center.X, center.Y);
-            arrow.RenderTransform = rotateTransform;
+            // Thay đổi góc xoay
+            rotateTransform.Angle = curAngle;
+
+            // Thay đổi tâm xoay
+            rotateTransform.CenterX = center.X;
+            rotateTransform.CenterY = center.Y;
         }
 
     }

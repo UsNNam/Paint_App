@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArrowShape\ArrowShape.csproj" />
     <ProjectReference Include="..\ShapeToDraw\ShapeToDraw.csproj" />
   </ItemGroup>
 

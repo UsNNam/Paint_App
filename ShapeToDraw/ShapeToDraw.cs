@@ -33,7 +33,29 @@ namespace Shapes
         {
 
         }
+        public static RotateTransform CopyRotateTransform(RotateTransform original)
+        {
+            if (original == null)
+                return null;
 
+            return new RotateTransform()
+            {
+                Angle = original.Angle,
+                CenterX = original.CenterX,
+                CenterY = original.CenterY
+            };
+        }
+        public static TranslateTransform CopyTranslateTransform(TranslateTransform original)
+        {
+            if (original == null)
+                return null;
+
+            return new TranslateTransform()
+            {
+                X = original.X,
+                Y = original.Y
+            };
+        }
         //For text box
         public bool textBoxState = false;
         public string textBoxText=null;
@@ -43,6 +65,11 @@ namespace Shapes
         public string textBoxFontFamily;
 
 
+        //
+        public bool isPolygon = false;
+        public TransformGroup transformGroup = new TransformGroup();
+        public RotateTransform rotateTransform = new RotateTransform();
+        public TranslateTransform translateTransform = new TranslateTransform();
         public static void AddPrototype(ShapeToDraw shape)
         {
             if (shape != null)
@@ -101,6 +128,8 @@ namespace Shapes
             this.curLayer = shapeToDraw.curLayer;
             this.curAngle = shapeToDraw.curAngle;
         }
+
+
 
         public TextBox CloneTextBox(TextBox textBox)
         {
@@ -404,6 +433,10 @@ namespace Shapes
 
         }
 
+
+        virtual public void MovePolygon(double deltaX, double deltaY) { }
+
+
         protected void RotateSelectedBorder()
         {
             if (borderSelected != null)
@@ -419,7 +452,7 @@ namespace Shapes
         public bool StartDrag(Point startPoint)
         {
             // Save the starting point of the drag
-            dragStartPoint = startPoint;
+            dragStartPoint = new Point( startPoint.X, startPoint.Y);
 
             // Check if the start point is within the shape
             if (IsPointInShape(startPoint))
@@ -432,6 +465,11 @@ namespace Shapes
                 Drop();
                 return false;
             }
+        }
+
+        public void QuyChuanXY()
+        {
+
         }
 
         public void Drag(Point currentPoint)
@@ -451,7 +489,9 @@ namespace Shapes
                 dragStartPoint = currentPoint;
 
                 // Redraw the shape at its new location (you may need to call a method to refresh the canvas here)
+
                 UpdateStartAndEndPoint();
+
             }
         }
 

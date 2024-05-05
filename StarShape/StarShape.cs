@@ -16,7 +16,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using MyTriangle;
 using Shapes;
 namespace StarShape
 {

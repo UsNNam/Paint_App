@@ -14,6 +14,7 @@ using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using MyArrow;
 using Shapes;
@@ -27,11 +28,32 @@ namespace PentagonArrowShape
         PointCollection points;
         public PentagonArrowShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-
+            this.arrowPentagon = new Polygon();
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            this.points = new PointCollection
+            {
+                new Point(StartPoint.X + width / 2, StartPoint.Y), // Đỉnh mũi tên trên cùng
+                new Point(EndPoint.X, StartPoint.Y + height / 3), // Góc phải trên
+                new Point(EndPoint.X - width / 4, StartPoint.Y + height / 2), // Góc phải dưới
+                new Point(StartPoint.X + width / 4, StartPoint.Y + height / 2), // Góc trái dưới
+                new Point(StartPoint.X, StartPoint.Y + height / 3) // Góc trái trên
+            };
         }
         public PentagonArrowShape(PentagonArrowShape pentagonArrowShape) : base(pentagonArrowShape)
         {
-            if(pentagonArrowShape.points != null)
+            this.arrowPentagon = new Polygon();
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            this.points = new PointCollection
+            {
+                new Point(StartPoint.X + width / 2, StartPoint.Y), // Đỉnh mũi tên trên cùng
+                new Point(EndPoint.X, StartPoint.Y + height / 3), // Góc phải trên
+                new Point(EndPoint.X - width / 4, StartPoint.Y + height / 2), // Góc phải dưới
+                new Point(StartPoint.X + width / 4, StartPoint.Y + height / 2), // Góc trái dưới
+                new Point(StartPoint.X, StartPoint.Y + height / 3) // Góc trái trên
+            };
+            if (pentagonArrowShape.points != null)
             {
                 points = new PointCollection();
                 for (int i = 0; i < 5; i++)
@@ -48,7 +70,7 @@ namespace PentagonArrowShape
             double height = EndPoint.Y - StartPoint.Y;
 
             // Tạo một polygon mới
-            arrowPentagon = new Polygon();
+            this.arrowPentagon = new Polygon();
             if (stroke != null)
             {
                 arrowPentagon.Stroke = this.stroke.borderColor;

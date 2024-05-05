@@ -47,13 +47,16 @@ namespace Simple_Paint
 
         public static List<ShapeToDraw> history = new List<ShapeToDraw>();
         public List<LayerShape> layers = new List<LayerShape>();
+        public List<ShapeToDraw> copyShapeList = new List<ShapeToDraw>();
         public int curLayer = 0;
         public string shapeType = "Line";
         public ShapeToDraw copyShape = null;
         public int copyCutState = 0;
         public int isSelectArea = 0;
         public int code = 0;
-        
+        public bool copyClipboard = false;
+        public bool copySingleShape = false;
+
         public const int NORMAL = 0;
         public const int ISSELECT = 1;
         public const int ISSELECTELEMENT = 2;
@@ -427,18 +430,20 @@ namespace Simple_Paint
         {
             if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                // Handle Ctrl + C here (e.g., perform copy operation)
+                // Handle Ctrl + C
                 if (!isDraw)
                 {
                     copyShape = curShape;
                     copyCutState = 0;
+                    copySingleShape = true;
+                    copyClipboard = false;
                 }
 
                 e.Handled = true; // Mark the event as handled to prevent further processing
             }
             else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                // Handle Ctrl + C here (e.g., perform copy operation)
+                // Handle Ctrl + X 
                 if (!isDraw)
                 {
                     copyShape = curShape;
@@ -450,18 +455,38 @@ namespace Simple_Paint
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 // Handle Ctrl + V here (e.g., perform paste operation)
-                if(!isDraw && copyShape != null)
+                if(!isDraw && curLayer != -1)
                 {
-                    if(copyCutState == 1)
+                    if(copyCutState == 1 && copyShape != null)
                     {
                         copyShape.Remove();
                         history.Remove(copyShape);
                     }
-                    copyShape = copyShape.Clone();
-                    copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
-                    copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
-                    history.Add(copyShape);
-                    copyShape.Draw();
+                    if (copySingleShape && copyShape != null)
+                    {
+                        copyShape = copyShape.Clone();
+                        copyShape.curLayer = curLayer;
+                        copyShape.StartPoint = new Point(copyShape.StartPoint.X + 20, copyShape.StartPoint.Y + 20);
+                        copyShape.EndPoint = new Point(copyShape.EndPoint.X + 20, copyShape.EndPoint.Y + 20);
+                        copyShape.UpdateStartAndEndPoint();
+                        history.Add(copyShape);
+                        if (curLayer != -1) layers[curLayer].caretaker.add(new Memento(history));
+                        copyShape.Draw();
+                    }
+                    else if(copyClipboard)
+                    {
+                        foreach (ShapeToDraw shape in copyShapeList)
+                        {
+                            shape.Draw();
+                            shape.curLayer = curLayer;
+                            shape.StartPoint = new Point(shape.StartPoint.X + 20, shape.StartPoint.Y + 20);
+                            shape.EndPoint = new Point(shape.EndPoint.X + 20, shape.EndPoint.Y + 20);
+                            shape.UpdateStartAndEndPoint();
+                            history.Add(shape);
+                        }
+                        layers[curLayer].caretaker.add(new Memento(history));
+                    }
+
                 }
                 e.Handled = true; // Mark the event as handled to prevent further processing
             }
@@ -562,6 +587,19 @@ namespace Simple_Paint
             double width = (double)(newBottomRight.X - newTopLeft.X);
             double height = (double)(newBottomRight.Y - newTopLeft.Y);
 
+
+            for(int i = 0; i < history.Count; i++)
+            {
+                if (history[i].IsInsideArea(newTopLeft, newBottomRight))
+                {
+                    copyShapeList.Add(history[i].Clone());
+                }
+            }
+
+            copyClipboard = true;
+            copySingleShape = false;
+
+            // Tạo một RenderTargetBitmap để chụp nội dung của hình chữ nhật
             BitmapSource capturedImage = CaptureScreen(this, 96, 96); // 'this' là cửa sổ hiện tại
             BitmapSource croppedImage = CropBitmap(capturedImage, (int)left+2, (int)(top+ 50 + 50 + 50 + 2), (int)width-2, (int)height-3); // Cắt một khu vực tùy ý
 

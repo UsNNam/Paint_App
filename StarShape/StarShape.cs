@@ -32,9 +32,36 @@ namespace StarShape
             Point newEndPoint1 = new Point(endPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 3 / 4, 0));
             Point newStartPoint = new Point(startPoint.X, Math.Max(startPoint.Y + (endPoint.Y - startPoint.Y) * 4 / 3, 0));
             Point newEndPoint = new Point(endPoint.X, startPoint.Y);
+            this.star = new Polygon();
         }
         public StarShape(StarShape starShape) : base(starShape)
         {
+            // Tính kích thước và tâm của hình chữ nhật
+            double width = EndPoint.X - StartPoint.X;
+            double height = EndPoint.Y - StartPoint.Y;
+            Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);
+
+            // Tạo danh sách điểm cho ngôi sao
+            this.points = new PointCollection();
+            for (int i = 0; i < 10; i++)
+            {
+                double angle = i * Math.PI / 5 - Math.PI / 2;
+                double radius = (i % 2 == 0) ? Math.Min(width, height) / 2 : Math.Min(width, height) / 4;  // giảm bán kính cho các điểm trong
+                double x = center.X + radius * Math.Cos(angle) * (width / height);  // Điều chỉnh theo tỷ lệ chiều rộng
+                double y = center.Y + radius * Math.Sin(angle);  // Không cần điều chỉnh chiều cao
+                points.Add(new Point(x, y));
+            }
+
+            // Tạo và cấu hình đối tượng Polygon
+            this.star = new Polygon
+            {
+                Points = points,
+                Stroke = Brushes.Black,
+                Fill = Brushes.Yellow,
+                StrokeThickness = 2
+            };
+
+            
             /*          this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
 
                         this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
@@ -45,7 +72,7 @@ namespace StarShape
                         this.line1 = (LineShape?)starShape.line1.Clone();
                         this.line2 = (LineShape?)starShape.line2.Clone();
                         this.line3 = (LineShape?)starShape.line3.Clone();*/
-            if(starShape.points != null)
+            if (starShape.points != null)
             {
                 points = new PointCollection();
                 for (int i = 0; i < 10; i++)
@@ -74,30 +101,21 @@ namespace StarShape
 
             UpdateStartAndEndPoint();
 
-            // Tính kích thước và tâm của hình chữ nhật
             double width = EndPoint.X - StartPoint.X;
             double height = EndPoint.Y - StartPoint.Y;
             Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);
 
-            // Tạo danh sách điểm cho ngôi sao
-            points = new PointCollection();
+
             for (int i = 0; i < 10; i++)
             {
                 double angle = i * Math.PI / 5 - Math.PI / 2;
                 double radius = (i % 2 == 0) ? Math.Min(width, height) / 2 : Math.Min(width, height) / 4;  // giảm bán kính cho các điểm trong
                 double x = center.X + radius * Math.Cos(angle) * (width / height);  // Điều chỉnh theo tỷ lệ chiều rộng
                 double y = center.Y + radius * Math.Sin(angle);  // Không cần điều chỉnh chiều cao
-                points.Add(new Point(x, y));
+                points[i] = new Point(x, y);
             }
 
-            // Tạo và cấu hình đối tượng Polygon
-            star = new Polygon
-            {
-                Points = points,
-                Stroke = Brushes.Black,
-                Fill = Brushes.Yellow,
-                StrokeThickness = 2
-            };
+
 
             if (stroke != null)
             {

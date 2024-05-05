@@ -28,14 +28,25 @@ namespace CollateShape
         {
             triangle1 = new TriangleShape(StartPoint, EndPoint);
             triangle2 = new TriangleShape(StartPoint, EndPoint);
-
+            this.collateShape = new Polygon();
         }
 
         public CollateShape(CollateShape collateShape) : base(collateShape)
         {
             this.triangle1 = (TriangleShape?)collateShape.triangle1.Clone();
             this.triangle2 = (TriangleShape?)collateShape.triangle2.Clone();
-            if(collateShape.points != null  )
+
+            this.collateShape = new Polygon();
+            // Định nghĩa các điểm cho Polygon để tạo hình dạng "Collate"
+            this.points = new PointCollection
+            {
+                StartPoint, // Góc trên bên trái
+                new Point(EndPoint.X, EndPoint.Y), // Góc dưới bên phải
+                new Point(StartPoint.X, EndPoint.Y), // Góc dưới bên trái
+                new Point(EndPoint.X, StartPoint.Y), // Góc trên bên phải
+                StartPoint // Trở lại điểm đầu tiên để đóng hình
+            };
+            if (collateShape.points != null  )
             {
                 points = new PointCollection();
                 for (int i = 0; i < 5; i++)
@@ -48,7 +59,7 @@ namespace CollateShape
         public override void Draw()
         {
             UpdateStartAndEndPoint();
-            collateShape = new Polygon();
+            
             if (stroke != null)
             {
                 collateShape.Stroke = this.stroke.borderColor;

@@ -34,6 +34,15 @@ namespace Shapes
 
         }
 
+        //For text box
+        public bool textBoxState = false;
+        public string textBoxText=null;
+        public double textBoxFontSize;
+        public SolidColorBrush textBoxForeground;
+        public SolidColorBrush textBoxBackground;
+        public string textBoxFontFamily;
+
+
         public static void AddPrototype(ShapeToDraw shape)
         {
             if (shape != null)

@@ -259,18 +259,17 @@ namespace Simple_Paint
                         shape.StartPoint = new Point(startX, startY);
                         shape.EndPoint = new Point(endX, endY);
                         shape.Rotate(curAngle);
-                        Dispatcher.Invoke(() =>
-                        {
-                            // Cập nhật UI tại đây
-                            if (curShapeLayer != -1) {
-                            
-                                //layers[curShapeLayer].caretaker.add(new Memento(history));
-                            
-                            };
-                            shape.attachTextBox(textColor, backgroundColor, (int)fontSize, fontFamily);
-                            shape.textBox.Text = text;
-                        });
-                        shape.UpdateStartAndEndPoint();
+
+
+                        // For Textbox
+                        shape.textBoxState = true;
+                        shape.textBoxText = text;
+                        shape.textBoxFontSize = fontSize;
+                        shape.textBoxForeground = textColor;
+                        shape.textBoxBackground = backgroundColor;
+                        shape.textBoxFontFamily = fontFamily;
+
+
                         layers[curShapeLayer].shapeToDraws.Add(shape);
 
                     }
@@ -529,6 +528,9 @@ namespace Simple_Paint
             // Tính toán kích thước của hình chữ nhật
             double width = (double)(newBottomRight.X - newTopLeft.X);
             double height = (double)(newBottomRight.Y - newTopLeft.Y);
+
+
+
 
             // Tạo một RenderTargetBitmap để chụp nội dung của hình chữ nhật
             var scale = VisualTreeHelper.GetDpi(canvas).DpiScaleX;
@@ -1116,13 +1118,16 @@ namespace Simple_Paint
 
             //Can sửa
 
-            curShape.stroke = new SolidStroke(Brushes.White, 2, null);
+            if (curShape != null)
+            {
+                curShape.stroke = new SolidStroke(Brushes.White, 2, null);
 
-            curShape.UpdateStartAndEndPoint();
-            curShape.Remove();
-            updateHistory();
-            // curShape.Remove();
-            isDraw = false;
+                curShape.UpdateStartAndEndPoint();
+                curShape.Remove();
+                updateHistory();
+                // curShape.Remove();
+                isDraw = false;
+            }
         }
         private void RadioButton_Click(object sender, RoutedEventArgs e)
         {

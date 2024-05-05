@@ -219,7 +219,6 @@ namespace Simple_Paint
                 }
 
 
-
                 int count = reader.ReadInt32();
                 for (int i = 0; i < count; i++)
                 {

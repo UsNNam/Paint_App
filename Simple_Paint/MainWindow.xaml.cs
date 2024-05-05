@@ -1035,7 +1035,7 @@ namespace Simple_Paint
                     }
                     else
                     {
-                        curShape.EndPoint = e.GetPosition(canvas);
+                        if (!(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) curShape.EndPoint = e.GetPosition(canvas);
                         if (curShape.StartPoint != curShape.EndPoint && code!= ISSELECT)
                         {
                             history.Add(curShape);

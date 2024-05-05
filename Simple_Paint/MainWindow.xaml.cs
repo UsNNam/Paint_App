@@ -539,6 +539,36 @@ namespace Simple_Paint
                 // Any other cleanup or state restoration logic can go here
             }
         }
+        public static BitmapSource CaptureScreen(Visual target, double dpiX = 96, double dpiY = 96)
+        {
+            if (target == null)
+                return null;
+
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+            RenderTargetBitmap rtb = new RenderTargetBitmap((int)(bounds.Width * dpiX / 96.0),
+                                                            (int)(bounds.Height * dpiY / 96.0),
+                                                            dpiX,
+                                                            dpiY,
+                                                            PixelFormats.Pbgra32);
+
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext ctx = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(target);
+                ctx.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
+            }
+
+            rtb.Render(dv);
+            return rtb;
+        }
+        public static CroppedBitmap CropBitmap(BitmapSource source, int x, int y, int width, int height)
+        {
+            return new CroppedBitmap(source, new Int32Rect(x, y, width, height));
+        }
+        private void SetImageToClipboard(BitmapSource image)
+        {
+            Clipboard.SetImage(image);
+        }
 
         private void CopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
@@ -571,6 +601,13 @@ namespace Simple_Paint
             copySingleShape = false;
 
             // Tạo một RenderTargetBitmap để chụp nội dung của hình chữ nhật
+            BitmapSource capturedImage = CaptureScreen(this, 96, 96); // 'this' là cửa sổ hiện tại
+            BitmapSource croppedImage = CropBitmap(capturedImage, (int)left+2, (int)(top+ 50 + 50 + 50 + 2), (int)width-2, (int)height-3); // Cắt một khu vực tùy ý
+
+            SetImageToClipboard(croppedImage);
+
+
+            /*// Tạo một RenderTargetBitmap để chụp nội dung của hình chữ nhật
             var scale = VisualTreeHelper.GetDpi(canvas).DpiScaleX;
             var renderTarget = new RenderTargetBitmap(
                 (int)Math.Round(width * scale),
@@ -588,7 +625,7 @@ namespace Simple_Paint
                 VisualBrush visualBrush = new VisualBrush(canvas)
                 {
                     ViewboxUnits = BrushMappingMode.Absolute,
-                    Viewbox = new Rect(newTopLeft.X, newTopLeft.Y+50, width, height)
+                    Viewbox = new Rect(newTopLeft.X, newTopLeft.Y+80, width, height)
                 };
 
                 context.DrawRectangle(visualBrush, null, new Rect(0, 0, width, height));
@@ -614,7 +651,7 @@ namespace Simple_Paint
 
                 // Lưu hình ảnh vào clipboard dưới dạng PNG
                 Clipboard.SetImage(bitmapImage);
-            }
+            }*/
             clearRectangale();
             code = NORMAL;
 

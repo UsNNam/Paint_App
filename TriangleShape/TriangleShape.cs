@@ -136,12 +136,15 @@ namespace MyTriangle
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
+            if (textStyleState == false)
+            {
+                triangle.Stroke = this.stroke.borderColor;
+                triangle.StrokeThickness = this.stroke.thickness;
+                triangle.StrokeDashArray = this.stroke.strokeDashArray;
+                triangle.Fill = this.stroke.fillColor;
+            }
 
-
-            triangle.Stroke = this.stroke.borderColor;
-            triangle.StrokeThickness = this.stroke.thickness;
-            triangle.StrokeDashArray = this.stroke.strokeDashArray;
-            triangle.Fill = this.stroke.fillColor;
+            
             p1.X = StartPoint.X + (EndPoint.X - StartPoint.X) / 2;
             p1.Y = StartPoint.Y;
             p2.X = StartPoint.X;

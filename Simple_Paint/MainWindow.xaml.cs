@@ -24,8 +24,8 @@ namespace Simple_Paint
         ShapeToDraw curShape;
         bool isDraw = false;
         // Default setting
-        public SolidColorBrush fillColorMain = null;
-        public SolidColorBrush borderColorMain = Brushes.Black;
+        public static SolidColorBrush fillColorMain = null;
+        public static SolidColorBrush borderColorMain = Brushes.Black;
         public double thickness = 1;
         //public static Stroke stroke = new SolidStroke(Brushes.Black, 1, null);
         public static string typeOfStroke = "Solid";
@@ -33,7 +33,7 @@ namespace Simple_Paint
 
         public static List<Stroke> baseStrokes = new List<Stroke>();
         public static List<ShapeToDraw> baseShapes = new List<ShapeToDraw>();
-        
+
         static MainWindow(){
             baseStrokes.Add(new DashStroke(new SolidColorBrush(Colors.Black), 1, null));
             baseStrokes.Add(new SolidStroke(new SolidColorBrush(Colors.Black), 1, null));
@@ -580,6 +580,34 @@ namespace Simple_Paint
 
         }
 
+        private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem != null)
+            {
+                var selectedFontItem = FontFamilyCombobox.SelectedItem as ComboBoxItem;
+                string selectedFont = "Arial";
+                if (selectedFontItem != null)
+                {
+                    selectedFont = selectedFontItem.Content.ToString();
+                }
+                ShapeToDraw.fontFamily = selectedFont;
+            }
+        }
+
+        private void FontSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem != null)
+            {
+                var selectedSizeItem = SizeCombobox.SelectedItem as ComboBoxItem;
+                string selectedSize = "12";
+                if (selectedSizeItem != null)
+                {
+                    selectedSize = selectedSizeItem.Content.ToString();
+                }
+                ShapeToDraw.fontSize = int.Parse(selectedSize);
+                
+            }
+        }
 
         private void ThicknessComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -819,9 +847,15 @@ namespace Simple_Paint
         }
 
 
+        private void Text_Style_Checked(object sender, RoutedEventArgs e)
+        {
+            ShapeToDraw.textStyleState = true;
+        }
 
-
-
+        private void Text_Style_UnChecked(object sender, RoutedEventArgs e)
+        {
+            ShapeToDraw.textStyleState = false;
+        }
 
 
 
@@ -1101,6 +1135,7 @@ namespace Simple_Paint
             if (radioButton.IsChecked == true)
             {
                 fillColorMain = (SolidColorBrush)radioButton.Tag;
+                ShapeToDraw.fillColor = fillColorMain;
                 if (code == ISSELECTELEMENT)
                 {
                     //Caretaker.add(new Memento(history));
@@ -1121,6 +1156,7 @@ namespace Simple_Paint
             if (radioButton.IsChecked == true)
             {
                 borderColorMain = (SolidColorBrush)radioButton.Tag;
+                ShapeToDraw.borderColor = borderColorMain;
                 if (code == ISSELECTELEMENT)
                 {
                     //Caretaker.add(new Memento(history));
@@ -1130,6 +1166,11 @@ namespace Simple_Paint
                     
                 }
             }
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

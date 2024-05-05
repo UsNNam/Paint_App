@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using MyStroke;
+
+
 namespace Shapes
 {
 
@@ -22,6 +24,11 @@ namespace Shapes
     {
         public static List<ShapeToDraw> prototypes = new List<ShapeToDraw>();
         public static int rotateAngle = 45;
+        public static bool textStyleState = false;
+        public static SolidColorBrush borderColor = Brushes.Green;
+        public static SolidColorBrush fillColor = Brushes.Blue;
+        public static int fontSize = 12;
+        public static string fontFamily = "Arial";
         static ShapeToDraw()
         {
 
@@ -433,6 +440,24 @@ namespace Shapes
                 borderSelected.EndPoint = this.EndPoint;
                 borderSelected.UpdateStartAndEndPoint();
             }
+
+            if(textBox != null && textStyleState)
+            {
+                textBox.BorderBrush = borderColor;
+                //textBox.Foreground = fillColor;
+                textBox.FontFamily = new FontFamily(fontFamily);
+                textBox.FontSize = fontSize;
+                textBox.Background = borderColor;
+                Style textBoxStyle = new Style(typeof(TextBox));
+
+                textBoxStyle.Setters.Add(new Setter(TextBox.ForegroundProperty, fillColor));
+
+
+                textBox.Style = textBoxStyle;
+            }
+            {
+                updateTextBoxPosition();
+            }
         }
         virtual public void updateTextBoxPosition()
         {
@@ -517,7 +542,7 @@ namespace Shapes
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
-            if (stroke != null)
+            if (stroke != null && textStyleState == false)
             {
                 line.Stroke = this.stroke.borderColor;
                 line.StrokeThickness = this.stroke.thickness;
@@ -661,7 +686,7 @@ namespace Shapes
             rectangle.Width = Math.Abs(EndPoint.X - StartPoint.X);
             rectangle.Height = Math.Abs(EndPoint.Y - StartPoint.Y);
 
-            if (stroke != null)
+            if (stroke != null && textStyleState == false)
             {
                 rectangle.Stroke = this.stroke.borderColor;
                 rectangle.StrokeThickness = this.stroke.thickness;

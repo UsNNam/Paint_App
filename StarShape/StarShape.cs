@@ -157,11 +157,20 @@ namespace StarShape
         public override void UpdateStartAndEndPoint()
         {
             base.UpdateStartAndEndPoint();
+            if (star != null && stroke != null && textStyleState == false)
+            {
+                star.Stroke = this.stroke.borderColor;
+                star.StrokeThickness = this.stroke.thickness;
+                star.StrokeDashArray = this.stroke.strokeDashArray;
+                star.Fill = this.stroke.fillColor;
+            }
 
             if (StartPoint == EndPoint)
             {
                 return;
             }
+
+
             double width = EndPoint.X - StartPoint.X;
             double height = EndPoint.Y - StartPoint.Y;
             Point center = new Point(StartPoint.X + width / 2, StartPoint.Y + height / 2);

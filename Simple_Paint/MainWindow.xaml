@@ -227,7 +227,7 @@
                 Name="SizeCombobox"
                 Width="100"
                 VerticalAlignment="Center"
-                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                SelectionChanged="FontSizeComboBox_SelectionChanged"
                 Style="{StaticResource ComboBoxStyle}">
                 <ComboBoxItem Content="8" Style="{StaticResource ComboBoxItemStyle}" />
                 <ComboBoxItem Content="10" Style="{StaticResource ComboBoxItemStyle}" />
@@ -240,7 +240,7 @@
                 Name="FontFamilyCombobox"
                 Width="100"
                 VerticalAlignment="Center"
-                SelectionChanged="ThicknessComboBox_SelectionChanged"
+                SelectionChanged="FontComboBox_SelectionChanged"
                 Style="{StaticResource ComboBoxStyle}">
                 <ComboBoxItem Content="Arial" Style="{StaticResource ComboBoxItemStyle}" />
                 <ComboBoxItem Content="Times New Roman" Style="{StaticResource ComboBoxItemStyle}" />
@@ -310,6 +310,7 @@
                 Click="btnAddLayer_Click"
                 Content="Add Layer"
                 Style="{StaticResource CustomButtonStyle}" />
+            <CheckBox Content="Text Style" Margin="20,0,0,0" Foreground="Black" Checked="Text_Style_Checked" Unchecked="Text_Style_UnChecked"/>
 
         </StackPanel>
         <StackPanel Orientation="Horizontal"

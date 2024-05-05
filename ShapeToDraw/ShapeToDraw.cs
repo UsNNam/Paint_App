@@ -99,6 +99,7 @@ namespace Shapes
 
             }
             this.curLayer = shapeToDraw.curLayer;
+            this.curAngle = shapeToDraw.curAngle;
         }
 
         public TextBox CloneTextBox(TextBox textBox)

@@ -23,8 +23,6 @@ namespace StarShape
     [Serializable]
     class StarShape : ShapeToDraw
     {
-        TriangleShape triangle1, triangle2;
-        LineShape line1, line2, line3;
         PointCollection points;
         Polygon star;
         public StarShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
@@ -62,16 +60,6 @@ namespace StarShape
             };
 
             
-            /*          this.triangle1 = (TriangleShape?)starShape.triangle1.Clone();
-
-                        this.triangle2 = (TriangleShape?)starShape.triangle2.Clone();
-                        triangle1.StartPoint = starShape.StartPoint;
-                        triangle1.EndPoint = starShape.StartPoint;
-                        triangle2.StartPoint = starShape.StartPoint;
-                        triangle2.EndPoint = starShape.StartPoint;
-                        this.line1 = (LineShape?)starShape.line1.Clone();
-                        this.line2 = (LineShape?)starShape.line2.Clone();
-                        this.line3 = (LineShape?)starShape.line3.Clone();*/
             if (starShape.points != null)
             {
                 points = new PointCollection();

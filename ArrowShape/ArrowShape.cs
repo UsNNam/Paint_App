@@ -190,7 +190,6 @@ namespace MyArrow
 
             //arrow.Points = points;
 
-            
 
         }
 

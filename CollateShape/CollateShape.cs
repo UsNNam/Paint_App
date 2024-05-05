@@ -24,7 +24,6 @@ namespace CollateShape
         PointCollection points;
         public CollateShape(Point startPoint, Point endPoint) : base(startPoint, endPoint)
         {
-
             this.collateShape = new Polygon();
         }
 

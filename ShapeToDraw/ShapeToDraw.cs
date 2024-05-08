@@ -119,7 +119,7 @@ namespace Shapes
         {
             this.StartPoint = shapeToDraw.StartPoint;
             this.EndPoint = shapeToDraw.EndPoint;
-            this.stroke = shapeToDraw.stroke;
+            if(shapeToDraw.stroke != null) this.stroke = new Stroke(shapeToDraw.stroke);
             if (shapeToDraw.textBox != null)
             {
                 this.textBox = CloneTextBox(shapeToDraw.textBox);
@@ -572,6 +572,7 @@ namespace Shapes
                 line.Stroke = Brushes.Black;
                 line.StrokeThickness = 1;
             }
+
 
             line.X1 = StartPoint.X;
             line.Y1 = StartPoint.Y;
